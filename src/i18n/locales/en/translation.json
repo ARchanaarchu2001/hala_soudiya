@@ -1,0 +1,298 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "services": "Services",
+    "contact": "Contact"
+  },
+
+  "hero": {
+    "badge": "Certified legal & documentation service provider for United Arab Emirates, Saudi Arabia and Bahrain",
+    "titleLines": [
+      "Halaa Saudia for business",
+      "Set-up Services"
+      
+    ],
+    "leadTitle": "Achieve Your Vision",
+    "regions": ["Saudi Arabia", "Bahrain", "United Arab Emirates"]
+  },
+
+  "about": {
+    "badge": "ABOUT OUR FIRM",
+    "heading1": "About Us",
+    "heading2": "",
+    "description1": "Hala Saudi Business Services Office is based in Dubai, United Arab Emirates, and provides services to clients in the UAE. Through our strategic partners, we also extend our services to Saudi Arabia with <ext href=\"https://alsumoulaw.sa/\">Al-Sumo Law Firm and Legal Consultancy</ext>, and to Bahrain with Sheikh Ali Al Khalifa Law Firm and Legal Consultancy. What makes us unique is that we offer services through a specialized team in company formation, with full legal support delivered with speed and complete transparency.",
+    "description2": "",
+    "expertise": {
+      "heading": "Expertise",
+      "items": [
+        "Our strategic partner in Saudi Arabia,  <ext href=\"https://alsumoulaw.sa/\">Al-Sumo Law Firm and Legal Consultancy</ext>, has over 17 years of experience in company formation and legal support.",
+        "Our strategic partner in Bahrain, Sheikh Ali Al Khalifa Law Firm, has over 15 years of experience in company formation and legal support."
+      ]
+    },
+    "commitment": "Our Commitment",
+    "mission": "Mission",
+    "vision": "Vision",
+    "missionHeading": "Mission",
+    "missionText": "Our mission is to provide accurate, efficient, and ethical legal and documentation services that simplify processes, ensure compliance, and build lasting trust. We are dedicated to delivering timely solutions with clear communication in multiple languages, supporting every client with professionalism and precision.",
+    "visionHeading": "Vision",
+    "visionText": "From our roots in Bahrain to our expansion into Saudi Arabia and now the UAE, our goal is to create a regional network of legal and documentation services united by quality, ethics, and client trust.",
+    "objectiveHeading": "Objective",
+    "objectiveText": "Providing professional legal and humanitarian services to achieve the vision and build strong and extended relationships based on trust and integrity.",
+    "stats": {
+      "founded": "Founded",
+      "countries": "Countries",
+      "dedicated": "Dedicated"
+    }
+  },
+
+  "services": {
+    "heading": "Our Services",
+
+    "chooser": { "subtitle": "Choose your region to explore our specialized services" },
+    "viewServices": "View All Services",
+    "allRegions": "All Regions",
+    "countLabel": "sections",
+    "country": {
+      "saudi": "Saudi Arabia",
+      "bahrain": "Bahrain",
+      "uae": "United Arab Emirates"
+    },
+
+    "saudi": {
+      "heading": "Company Formation in Saudi Arabia",
+
+      "foreign": {
+        "title": "For Foreign Investors",
+        "points": [
+          "Establishing a foreign company or opening a branch with 100% ownership."
+        ],
+        "reqTitle": "Requirements include:",
+        "requirements": [
+          "A copy of the commercial registration attested by the Saudi Embassy.",
+          "The company’s financial statements for the last fiscal year, issued by a certified public accountant and attested by the Saudi Embassy.",
+          "Certain activities may require additional licenses and approvals from competent authorities."
+        ]
+      },
+
+      "withPartner": {
+        "title": "For Saudi or GCC Investors with a Foreign Partner",
+        "intro": "",
+        "reqTitle": "Requirements include:",
+        "requirements": [
+          "A copy of the commercial registration attested by the Saudi Embassy.",
+          "The company’s financial statements for the last fiscal year, issued by a certified public accountant and attested by the Saudi Embassy.",
+          "Certain activities may require additional licenses and approvals from competent authorities.",
+          "National ID or commercial registration of the Saudi or GCC partner."
+        ]
+      },
+
+     "premium": {
+  "title": "Saudi Premium Residency Program",
+  "text": "The Premium Residency Program grants foreigners, talents, and investors an opportunity to reside in the Kingdom with benefits such as property ownership, conducting business, and exemptions from certain fees.",
+  "conditions": "Conditions: A valid passport, financial solvency, and a clean criminal record."
+}
+,
+
+      "localGCC": {
+        "title": "For Saudi and GCC Investors",
+        "items": [
+          "Company formation for Saudi citizens in Saudi Arabia.",
+          "Company formation or branch registration for GCC companies in Saudi Arabia."
+        ]
+      },
+
+      "companyTypes": {
+        "heading": "Types of Companies under the Saudi Companies Law",
+        "items": [
+          {
+            "name": "General Partnership",
+            "desc": "Founded by two or more individuals/entities who are jointly and personally liable for company debts and obligations. Partners acquire the status of “trader”.for more info.<contact>contact us</contact>. "
+          },
+          {
+            "name": "Limited Partnership",
+            "desc": "Includes at least one general partner personally liable for company debts and at least one limited partner liable only up to their share in capital, without acquiring trader status.for more info.<contact>contact us</contact>"
+          },
+          {
+            "name": "Joint Stock Company (JSC)",
+            "desc": "Founded by one or more persons; capital is divided into tradable shares. The company alone is liable for its debts; shareholders are liable only up to the value of subscribed shares.for more info.<contact>contact us</contact>"
+          },
+          {
+            "name": "Simplified Joint Stock Company (SJSC)",
+            "desc": "Founded by one or more persons; capital is divided into tradable shares. SJSC follows JSC rules unless otherwise stated.for more info.<contact>contact us</contact>"
+          },
+          {
+            "name": "Limited Liability Company (LLC)",
+            "desc": "Founded by one or more persons; it has a separate legal personality. The company alone is liable for its debts; owners/partners are liable only up to their share in the capital.for more info.<contact>contact us</contact>"
+          }
+        ]
+      },
+
+      "licenses": {
+        "heading": "Types of Investment Licenses in Saudi Arabia",
+        "groups": [
+          { "name": "Service License", "items": [] },
+          { "name": "Industrial License", "items": [] },
+          { "name": "Scientific and Technical Office License", "items": [] },
+          { "name": "Temporary Certificate for Government Project Bids", "items": [] },
+          { "name": "Real Estate License", "items": [] },
+          { "name": "Temporary License to Execute a Government/Semi-Government Contract", "items": [] },
+          {
+            "name": "Commercial License",
+            "items": [
+              "Commercial license with a Saudi partner",
+              "100% foreign commercial license"
+            ]
+          },
+          {
+            "name": "Transport Activity Licenses",
+            "items": [
+              "Public land transport by buses within cities",
+              "Public land transport by metro/rail within cities",
+              "Other land transport licenses"
+            ]
+          },
+          {
+            "name": "Professional Licenses",
+            "items": [
+              "Professional license with a Saudi partner",
+              "Consulting license for engineering offices",
+              "License for foreign law firms"
+            ]
+          },
+          { "name": "Entrepreneurial Licenses", "items": [] },
+          {
+            "name": "Other Licenses",
+            "items": [
+              "Consulting license for economic/technical liaison offices",
+              "Recruitment agency license and domestic labor services",
+              "Printing and publishing activity license",
+              "Agricultural License",
+              "Mining License",
+              "License under the National Anti-Commercial Concealment Program",
+              "Regional Headquarters License"
+            ]
+          }
+        ]
+      }
+    },
+
+    "bahrain": {
+  "heading": "Company Formation in Bahrain",
+  "items": [
+    {
+      "title": "How to Establish a Company in Bahrain for Foreigners",
+      "desc": "Starting a company in Bahrain is not complicated, but it does require following a series of organized steps to ensure all legal requirements are met. Below are ten essential steps for foreigners looking to establish a business in Bahrain:",
+      "bullets": [
+        "Obtain a Security Clearance — background check by NPRA for all involved individuals.",
+        "Register a Unique Company Name — submit and reserve on the relevant government portal to avoid duplication.",
+        "Choose and Approve Office Location — officials verify the site complies with activity/zoning rules.",
+        "Prepare Legal Documents — draft MOA/AOA and required shareholder/board resolutions with a legal advisor.",
+        "Open a Business Bank Account — provide MOA, trade license/CR (as applicable), IDs, and bank KYC documents.",
+        "Build the Right Team — hire local and/or foreign employees to match your business needs and scale.",
+        "Choose the Right Legal Structure — e.g., WLL/LLC, SPC, JSC, branch, or representative office.",
+        "Provide Proof of Business Address — submit a valid lease or approved virtual office documentation.",
+        "Register the Memorandum of Association — file with the Commercial Registry via Sijilat.",
+        "Processing Time — typically ~20–45 working days, depending on documents and approvals."
+      ]
+    },
+    {
+      "title": "Requirements Based on Investor Type",
+      "desc": "Key differences across resident, GCC, and non-GCC investors:",
+      "bullets": [
+        "Residents in Bahrain: easy registration on Sijilat; no Bahraini partner required; some sectors (finance, education, healthcare, etc.) need special approvals; eligible for work/investor visas.",
+        "Citizens of GCC Countries: treated like Bahraini nationals in most sectors; can own 100% without a local partner; can purchase property under the company; no local sponsor needed; benefit from local incentives.",
+        "Foreign Investors (Non-GCC Residents): 100% foreign ownership allowed in many sectors (IT, consulting, logistics, e-commerce, restaurants, manufacturing…); some sectors need a Bahraini partner (e.g., General Trading 0.01% Bahraini; Construction & Contracting 51% Bahraini); can register via Sijilat or through service providers."
+      ]
+    },
+    {
+      "title": "Government Incentives and Support",
+      "desc": "Ownership, cost, and growth support programs:",
+      "bullets": [
+        "Tax Exemptions: no personal or corporate income tax (except oil); VAT 10% on applicable supplies.",
+        "100% Foreign Ownership: widely allowed; local partner only in a few activities.",
+        "Government Support & Financing: Tamkeen offers interest-free/soft financing, local hiring support, and salary support (often 50–75% in early years).",
+        "Free Zones & Business Parks: e.g., Bahrain Logistics Zone (BLZ) and Bahrain International Investment Park (BIIP) with customs benefits, export support, and ready infrastructure."
+      ]
+    },
+    {
+      "title": "Advantages of Establishing a Company in Bahrain for Foreigners",
+      "desc": "Operational strengths that appeal to international founders:",
+      "bullets": [
+        "Strategic Location: gateway to the Gulf with direct access to Saudi Arabia via King Fahd Causeway.",
+        "Low Setup Costs: company setup can start around BHD 1,000 (one thousand Bahraini dinars).",
+        "Strong Government Support: streamlined visas and regulatory processes for investors.",
+        "Excellent Infrastructure: international airport, major seaport, and efficient road networks.",
+        "Safe and Secure Environment: high safety and low crime, supporting business stability."
+      ]
+    },
+    {
+      "title": "Challenges Foreigners May Face",
+      "desc": "Plan ahead for these common hurdles:",
+      "bullets": [
+        "Local Partnership Requirement in Some Sectors.",
+        "Bureaucratic Procedures may slow some steps due to formalities.",
+        "Extra Fees and Permits in certain activities (including annual charges)."
+      ]
+    },
+    {
+      "title": "Investor Visa in Bahrain",
+      "desc": "Who qualifies and what you need:",
+      "bullets": [
+        "Issued to owners of licensed and registered companies; validity usually 2 years or more; extendable to spouse and children.",
+        "Typical requirements: Commercial Registration copy, office lease agreement, capital certificate, medical check-up and fingerprinting, health insurance, and ID card."
+      ]
+    },
+    {
+      "title": "Key Platforms and Support Services",
+      "desc": "Official portals and support channels:",
+      "bullets": [
+        "Sijilat (sijilat.bh) — business registration platform.",
+        "Tamkeen (tamkeen.bh) — funding and support for businesses.",
+        "LMRA (lmra.bh) — work permits and visas.",
+        "Invest Bahrain (investbahrain.bh) — foreign investor support."
+      ]
+    }
+  ]
+}
+,
+
+    "uae": {
+      "heading": "Company Formation in the United Arab Emirates",
+      "items": [
+        { "title": "For Foreign Investors" },
+        { "title": "For Emirati or GCC Investors" }
+      ]
+    }
+  },
+
+  "contact": {
+    "heading": "Get In Touch",
+    "description": "We're here to help. Reach out for inquiries, consultations, or questions about our services.",
+    "phone": "+971 50 123 4567",
+    "whatsapp": "+971 50 922 7577",
+    "email": "contact@halaasaudia.com",
+    "address": "Office 203, Marina Plaza, Dubai Marina, United Arab Emirates",
+    "nameLabel": "Name",
+    "namePlaceholder": "Your full name",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@example.com",
+    "messageLabel": "Message",
+    "messagePlaceholder": "How can we assist you?",
+    "button": "Send Message"
+  },
+
+  "footer": {
+    "description": "Certified legal and documentation services delivered with accuracy, ethics, and professionalism across the Gulf.",
+    "quickLinks": "Quick Links",
+    "about": "About Us",
+    "services": "Services",
+    "contact": "Contact",
+    "contactTitle": "Contact",
+    "address": "Office 203, Marina Plaza, Dubai Marina, United Arab Emirates",
+    "phone": "971 50 123 4567",
+    "email": "info@halaasaudia.com",
+    "followUs": "Follow Us",
+    "rights": "All rights reserved."
+  }
+}

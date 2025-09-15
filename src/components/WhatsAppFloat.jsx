@@ -5,7 +5,7 @@ const WhatsAppFloat = () => {
   return (
     <div className="fixed bottom-6 right-6 z-50 group">
       <a
-        href="https://wa.me/971501234567" // Replace with your WhatsApp number
+        href="https://wa.me/971509227577" 
         target="_blank"
         rel="noopener noreferrer"
         className="relative flex items-center justify-center w-14 h-14 bg-green-500 rounded-full shadow-lg hover:bg-green-600 transition-all duration-300 animate-pulse"
@@ -20,9 +20,9 @@ const WhatsAppFloat = () => {
         </svg>
 
         {/* Tooltip */}
-        <span className="absolute right-16 bg-gray-900 text-white text-xs px-3 py-1 rounded shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300">
-          Chat with us
-        </span>
+        {/* <span className="absolute right-16 bg-gray-900 text-white text-xs px-3 py-1 rounded shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300">
+          WhatsApp
+        </span> */}
       </a>
     </div>
   );

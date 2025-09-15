@@ -1,197 +1,287 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+// src/pages/ServicesPage.jsx
+import React, { useEffect, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
+import { useNavigate, useParams, Link } from "react-router-dom";
 
-const services = [
-  {
-    title: "Corporate & Commercial Legal Support",
-    image: "/icons/service-1.png",
-    description: "Legal solutions for governance, M&A, transactions.",
-    features: ["Governance", "M&A", "Contracts", "Compliance"],
-  },
-  {
-    title: "Litigation & Court Representation",
-    image: "/icons/service-2.png",
-    description: "Strong litigation support and representation.",
-    features: ["Litigation", "Disputes", "Court", "Strategy"],
-  },
-  {
-    title: "Contract Drafting & Negotiation",
-    image: "/icons/service-3.png",
-    description: "Contracts that protect your interests.",
-    features: ["Drafting", "Review", "Negotiation", "Risk"],
-  },
-  {
-    title: "Govt. & Semi-Govt. Advisory",
-    image: "/icons/service-4.png",
-    description: "Public sector legal advisory.",
-    features: ["Public Law", "Relations", "Policy", "Compliance"],
-  },
-  {
-    title: "Debt Recovery & Execution",
-    image: "/icons/service-5.png",
-    description: "Tactical debt and enforcement services.",
-    features: ["Recovery", "Assets", "Enforcement", "Settlements"],
-  },
-  {
-    title: "Company Registration & Compliance",
-    image: "/icons/service-6.png",
-    description: "Business setup and legal structuring.",
-    features: ["Registration", "Licensing", "Compliance", "Structure"],
-  },
-];
+import CountryTitle from "../components/services/CountryTitle";
+import PageHeading from "../components/services/PageHeading";
+import ServiceTitle from "../components/services/ServiceTitle";
 
-const FloatingElement = ({ children, delay = 0 }) => (
-  <motion.div
-    animate={{ y: [-10, 10, -10], rotate: [-1, 1, -1] }}
-    transition={{ duration: 4, repeat: Infinity, delay, ease: "easeInOut" }}
-  >
-    {children}
-  </motion.div>
-);
+import { SERVICE_IMAGES, FIRST_TILE_OVERRIDE, SERVICE_ICONS } from "../utils/serviceImages";
 
-const ServicesPage = () => {
-  const [hoveredCard, setHoveredCard] = useState(null);
-  const headingText = "Our Legal Services";
-  const [isHovered, setIsHovered] = useState(false);
+const A = (v) => (Array.isArray(v) ? v : []);
+const O = (v) => (v && typeof v === "object" && !Array.isArray(v) ? v : {});
+const S = (v) => (typeof v === "string" ? v : v?.title ?? v?.name ?? "");
+
+const BG = "#f5f0eb";
+
+// Fixed country tiles
+function buildCountryCards(t) {
+  return [
+    {
+      key: "saudi",
+      label: t("services.country.saudi", { defaultValue: "Saudi Arabia" }),
+      bgSrc: "/assets/saudi-arabia.jpeg",
+      flagSrc: "/icons/saudi.png",
+      overlay: "#0c6b64",
+    },
+    {
+      key: "bahrain",
+      label: t("services.country.bahrain", { defaultValue: "Bahrain" }),
+      bgSrc: "/assets/bahrain.jpg",
+      flagSrc: "/icons/bahran.png",
+      overlay: "#75516b",
+    },
+    {
+      key: "uae",
+      label: t("services.country.uae", { defaultValue: "United Arab Emirates" }),
+      bgSrc: "/assets/uae1.jpg",
+      flagSrc: "/icons/uae3.png",
+      overlay: "#0e3a5a",
+    },
+  ];
+}
+
+
+
+// Guarantees 6 Saudi sections, with safe fallbacks if a translation key is empty
+// const SAUDI_SECTIONS = [
+//   { id: "foreign",        pick: (C) => O(C.foreign).title,        fallback: "For Foreign Investors" },
+//   { id: "with-partner",   pick: (C) => O(C.withPartner).title,    fallback: "For Saudi/GCC with Foreign Partner" },
+//   { id: "premium",        pick: (C) => O(C.premium).title,        fallback: "Saudi Premium Residency Program" },
+//   { id: "local-gcc",      pick: (C) => O(C.localGCC).title,       fallback: "For Saudi and GCC Investors" },
+//   { id: "company-types",  pick: (C) => O(C.companyTypes).heading, fallback: "Types of Companies" },
+//   { id: "licenses",       pick: (C) => O(C.licenses).heading,     fallback: "Types of Investment Licenses" },
+// ];
+
+// function mapSaudiCards(C) {
+//   return SAUDI_SECTIONS.map(({ id, pick, fallback }) => {
+//     const raw = pick(C);
+//     return { id, title: S(raw) || fallback };
+//   });
+// }
+
+
+
+function mapSaudiCards(C) {
+  const out = [];
+  const F = O(C.foreign);
+  if (F.title) out.push({ id: "foreign", title: S(F.title) });
+  const WP = O(C.withPartner);
+  if (WP.title) out.push({ id: "with-partner", title: S(WP.title) });
+  const PR = O(C.premium);
+  if (PR.title) out.push({ id: "premium", title: S(PR.title) });
+  const LG = O(C.localGCC);
+  if (LG.title) out.push({ id: "local-gcc", title: S(LG.title) });
+  const CT = O(C.companyTypes);
+  if (CT.heading) out.push({ id: "company-types", title: S(CT.heading) });
+  const LIC = O(C.licenses);
+  if (LIC.heading) out.push({ id: "licenses", title: S(LIC.heading) });
+  return out;
+}
+
+function mapSimpleCards(C) {
+  return A(C.items).map((it, i) => ({ id: `sec-${i}`, title: S(it?.title ?? it), desc: S(it?.desc ?? "") }));
+}
+
+export default function ServicesPage() {
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language || "en";
+  const navigate = useNavigate();
+  const { country: countryParam } = useParams();
+
+  // keep document in sync for a11y; layout stays LTR at component level
+  useEffect(() => {
+    document.documentElement.lang = lang;
+    document.documentElement.dir = i18n.dir();
+  }, [lang, i18n]);
+
+  const heading = t("services.heading", { defaultValue: "Our Services" });
+  const chooserSubtitle = t("services.chooser.subtitle", {
+    defaultValue: "Choose your region to explore our specialized services",
+  });
+  const backLabel = t("services.allRegions", { defaultValue: "All Regions" });
+
+  const SRaw = O(t("services.saudi", { returnObjects: true, defaultValue: {} }));
+  const BRaw = O(t("services.bahrain", { returnObjects: true, defaultValue: {} }));
+  const URaw = O(t("services.uae", { returnObjects: true, defaultValue: {} }));
+
+  const countries = useMemo(() => buildCountryCards(t), [i18n.language]);
+
+  const serviceCards = useMemo(() => {
+    if (!countryParam) return [];
+    const base =
+      countryParam === "saudi" ? mapSaudiCards(SRaw)
+      : countryParam === "bahrain" ? mapSimpleCards(BRaw)
+      : mapSimpleCards(URaw);
+
+      
+
+    return base.map((s, idx) => {
+      const saNodeByKey =
+        countryParam === "saudi"
+          ? s.id === "foreign"       ? O(SRaw.foreign)
+          : s.id === "with-partner"  ? O(SRaw.withPartner)
+          : s.id === "premium"       ? O(SRaw.premium)
+          : s.id === "local-gcc"     ? O(SRaw.localGCC)
+          : s.id === "company-types" ? O(SRaw.companyTypes)
+          : s.id === "licenses"      ? O(SRaw.licenses)
+          : null
+          : null;
+
+      const simpleItem =
+        countryParam === "bahrain" ? A(BRaw.items)[idx]
+        : countryParam === "uae"   ? A(URaw.items)[idx]
+        : null;
+
+      const imgFromI18n = saNodeByKey?.image || simpleItem?.image;
+      let image =
+        imgFromI18n ||
+        SERVICE_IMAGES[countryParam]?.[s.id] ||
+        SERVICE_IMAGES[countryParam]?.[`sec-${idx}`];
+
+      if (idx === 0 && FIRST_TILE_OVERRIDE[countryParam]) {
+        image = FIRST_TILE_OVERRIDE[countryParam];
+      }
+
+      const icon =
+        (SERVICE_ICONS[countryParam]?.[s.id]) ||
+        (SERVICE_ICONS[countryParam]?.[`sec-${idx}`]) ||
+        null;
+
+      return {
+        key: s.id,
+        title: s.title,
+        excerpt: S(simpleItem?.desc || ""),
+        image,
+        icon,
+      };
+    });
+  }, [countryParam, SRaw, BRaw, URaw, i18n.language]);
+
+  const selected = countryParam || null;
+
+  // Decide grid layout based on how many cards we have
+const count = serviceCards.length;
+const gridClass =
+  count <= 1
+    ? "grid-cols-1 max-w-xl mx-auto"                     // 1 card → centered narrow column
+    : count === 2
+    ? "grid-cols-1 sm:grid-cols-2 max-w-5xl mx-auto"     // 2 cards → centered two columns
+    : "md:grid-cols-2 lg:grid-cols-3";                   // 3+ cards → your normal layout
+
 
   return (
-    <div  className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-[#A29061]/10 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6 pb-20 relative z-10 pt-20">
-        <motion.h2
-  className="text-4xl font-bold text-center mb-16 text-gray-800 uppercase"
-  style={{
-    textShadow: "0 0 30px rgba(162, 144, 97, 0.4)", // optional golden glow
-  }}
-  initial="hidden"
-  whileInView="visible"
-  viewport={{ once: true }}
-  variants={{
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: 0.06,
-        delayChildren: 0.2,
-      },
-    },
-  }}
->
-  <span className="inline-flex flex-wrap justify-center">
-    {headingText.split("").map((char, i) => (
-      <motion.span
-        key={i}
-        variants={{
-          hidden: { opacity: 0, y: 25 },
-          visible: { opacity: 1, y: 0 },
-        }}
-        transition={{ duration: 0.4 }}
-      >
-        {char === " " ? "\u00A0" : char}
-      </motion.span>
-    ))}
-  </span>
-</motion.h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-          {services.map((service, index) => (
+    // 🔒 Lock layout LTR here
+    <section id="services" dir="ltr" className="min-h-screen overflow-hidden relative py-12" style={{ background: BG }}>
+      <div className="max-w-7xl mx-auto px-6 relative z-10 pt-20">
+        <AnimatePresence mode="wait">
+          {!selected && (
             <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 100, rotateX: -45, scale: 0.8 }}
-              whileInView={{ opacity: 1, y: 0, rotateX: 0, scale: 1 }}
-              viewport={{ once: true, amount: 0.1 }}
-              transition={{ duration: 0.8, delay: index * 0.2, ease: "easeOut" }}
-              whileHover={{ y: -20, rotateY: 10, rotateX: 5, scale: 1.05 }}
-              onHoverStart={() => setHoveredCard(index)}
-              onHoverEnd={() => setHoveredCard(null)}
-              className="group relative perspective-1000"
+              key="chooser"
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -14 }}
+              transition={{ duration: 0.35 }}
             >
-              <FloatingElement delay={index * 0.5}>
-                <div className="relative">
-                  <div className="relative bg-white border border-gray-200 rounded-3xl p-8 h-full shadow-md transition-all duration-500 overflow-hidden">
-                    <motion.div className="absolute inset-0 opacity-5"></motion.div>
-
-                    <motion.div
-                      whileHover={{ scale: 1.2, rotate: 360, y: -10 }}
-                      transition={{ duration: 0.6, ease: "backOut" }}
-                      className="relative z-10 mb-8 flex justify-center"
-                    >
-                      <img
-                        src={service.image}
-                        alt={service.title}
-                        className="w-28 h-28 object-contain"
-                      />
-                    </motion.div>
-
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative z-10">
-                      <motion.h3
-                        className="text-xl font-bold text-gray-800 mb-4 text-center group-hover:text-[#8c764d] transition-colors duration-300"
-                        whileHover={{ scale: 1.05 }}
-                      >
-                        {service.title}
-                      </motion.h3>
-                      <motion.p
-                        className="text-gray-600 text-sm leading-relaxed text-center mb-6"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                      >
-                        {service.description}
-                      </motion.p>
-
-                      <div className="space-y-3 mb-8">
-                        {service.features.map((feature, idx) => (
-                          <motion.div
-                            key={idx}
-                            initial={{ opacity: 0, x: -30, scale: 0.8 }}
-                            whileInView={{ opacity: 1, x: 0, scale: 1 }}
-                            transition={{ duration: 0.4, delay: 0.1 * idx + index * 0.05, ease: "backOut" }}
-                            whileHover={{ x: 10, scale: 1.05 }}
-                            className="flex items-center text-sm text-gray-700 group/feature"
-                          >
-                            <motion.div
-                              className="w-3 h-3 bg-gradient-to-r from-[#A29061] to-[#8c764d] rounded-full mr-3 flex-shrink-0 group-hover/feature:scale-125 transition-transform duration-200"
-                              whileHover={{ rotate: 360 }}
-                              transition={{ duration: 0.3 }}
-                            />
-                            <span className="group-hover/feature:font-semibold transition-all duration-200">
-                              {feature}
-                            </span>
-                          </motion.div>
-                        ))}
-                      </div>
-
-                     <motion.button
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(0,0,0,0.1)" }}
-      whileTap={{ scale: 0.95 }}
-      className="relative overflow-hidden w-full bg-[#A29061] text-white font-bold py-4 px-6 rounded-2xl flex items-center justify-center gap-3 shadow-md hover:shadow-lg transition-all duration-300"
-    >
-      {/* Shining effect */}
-      <motion.div
-        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-        initial={{ x: "-100%" }}
-        animate={isHovered ? { x: "100%" } : { x: "-100%" }}
-        transition={{ duration: 0.6, ease: "easeInOut" }}
-      />
-
-      {/* Text & icon */}
-      <motion.span whileHover={{ x: -5 }} transition={{ duration: 0.2 }} className="z-10">
-        Explore Service
-      </motion.span>
-      <motion.div whileHover={{ x: 5, rotate: 45 }} transition={{ duration: 0.3 }} className="z-10">
-        <ArrowRight className="w-5 h-5" />
-      </motion.div>
-    </motion.button>
-                    </motion.div>
-                  </div>
-                </div>
-              </FloatingElement>
+              {/* Text blocks can still use bidi direction for proper shaping */}
+              <PageHeading title={heading} subtitle={chooserSubtitle} titleDir={i18n.dir()} align="center"/>
+              <div className="grid md:grid-cols-3 gap-6 lg:gap-8 mt-8">
+                {countries.map((c) => (
+                  <CountryTitle
+                    key={c.key}
+                    label={c.label}
+                    bgSrc={c.bgSrc}
+                    flagSrc={c.flagSrc}
+                    overlay={c.overlay}
+                    title={c.label}
+                    // Keep tiles visually the same regardless of language
+                    titleDir={i18n.dir()}
+                    onClick={() => navigate(`/services/${c.key}`)}
+                  />
+                ))}
+              </div>
             </motion.div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
+          )}
 
-export default ServicesPage;
+          {selected && (
+            <motion.div
+              key={`country-${selected}`}
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -14 }}
+              transition={{ duration: 0.35 }}
+            >
+              <div className="mb-6 flex items-center justify-between">
+                <Link
+                  to="/services"
+                  className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border bg-white hover:bg-gray-50"
+                  style={{ borderColor: "rgba(0,0,0,0.12)" }}
+                >
+                  <span>←</span>
+                  <span className="font-medium">{backLabel}</span>
+                </Link>
+                {/* <div className="text-gray-500 text-sm uppercase">{selected}</div> */}
+
+               {(() => {
+                const AR = {
+                  saudi: "المملكة العربية السعودية",
+                  bahrain: "مملكة البحرين",
+                  uae: "الإمارات العربية المتحدة",
+                };
+                const EN = {
+                  saudi: "Saudi Arabia",
+                  bahrain: "Bahrain",
+                  uae: "United Arab Emirates",
+                };
+
+                const isAr = i18n.language?.startsWith("ar");
+                const label = (isAr ? AR : EN)[selected] ?? selected;
+
+                return (
+                  <div dir={i18n.dir()} className="text-gray-500 text-sm">
+                    {label}
+                  </div>
+                );
+              })()}
+
+              </div>
+
+              <PageHeading
+                title={
+                  selected === "saudi"
+                    ? S(SRaw.heading) || t("services.country.saudi")
+                    : selected === "bahrain"
+                    ? S(BRaw.heading) || t("services.country.bahrain")
+                    : S(URaw.heading) || t("services.country.uae")
+                }
+                subtitle={t("services.viewServices", { defaultValue: "View All Services" })}
+                titleDir={i18n.dir()}
+              />
+
+              {serviceCards.length ? (
+                <div className={`grid gap-10 mt-8 whitespace-wrap ${gridClass}`}>
+                  {serviceCards.map((s) => (
+                    <ServiceTitle
+                      key={s.key}
+                      // Card layout stays the same; only text uses bidi
+                      dir={i18n.dir()}
+                      image={s.image}
+                      title={s.title}
+                      icon={s.icon}
+                      onClick={() => navigate(`/services/${selected}/section/${s.key}`)}
+                      
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center text-gray-500">No data.</div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </section>
+  );
+}

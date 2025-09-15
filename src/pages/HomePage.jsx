@@ -1,39 +1,33 @@
-import React from 'react'
-import Navbar from '../components/Navbar'
-import HeroSection from '../components/Hersection'
-import AboutSection from './AboutPage'
-import ServicesPage from './ServicePage'
-import ContactPage from './ContactPage'
-import Footer from '../components/Footer'
+// HomePage.jsx
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
-const HomePage = () => {
+import HeroSection from "../components/Hersection";
+import AboutSection from "./AboutPage";
+import ServicesPage from "./ServicePage";
+import ContactPage from "./ContactPage";
+
+export default function HomePage() {
+  const location = useLocation();
+
+  useEffect(() => {
+    const target = location.state?.scrollTo;
+    if (target) {
+      // wait for sections to render
+      requestAnimationFrame(() => {
+        document.getElementById(target)?.scrollIntoView({ behavior: "smooth" });
+      });
+    }
+  }, [location.state]);
+
   return (
-    <div>
-      <Navbar />
-
-      {/* HOME section */}
-      <section id="home" className="scroll-section min-h-screen">
-        <HeroSection />
-      </section>
-
-      {/* ABOUT section */}
-      <section id="about" className="scroll-section min-h-screen">
-        <AboutSection />
-      </section>
-
-      {/* SERVICES section */}
-      <section id="services" className="scroll-section min-h-screen">
-        <ServicesPage />
-      </section>
-
-      {/* CONTACT section */}
-      <section id="contact" className="scroll-section min-h-screen">
-        <ContactPage />
-      </section>
-
-      <Footer />
-    </div>
-  )
+    <>
+      <section id="home"><HeroSection /></section>
+      <section id="services"><ServicesPage /></section>
+      <section id="about"><AboutSection /></section>
+      
+      <section id="contact"><ContactPage /></section>
+      
+    </>
+  );
 }
-
-export default HomePage

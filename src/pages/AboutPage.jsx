@@ -1,395 +1,189 @@
-import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+// src/sections/AboutSection.jsx
+import React, { useEffect, useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
+import { motion, useScroll, useTransform } from "framer-motion";
+import MissionVisionSimple from "../components/about/MissionVisionSimple";
+import ExpertiseList from "../components/about/ExpertiseList";
+import SplitHeading from "../components/about/SplitHeading";
+import StatsRow from "../components/about/StatsRow";
+import RichText from "../components/common/RichTextLink";
+import { TEXT } from "../components/about/Theme";
+
+const GREEN = "#000000";
+
+/* ---- Motion variants ---- */
+const container = {
+  hidden: {},
+  show: {
+    transition: { staggerChildren: 0.08, delayChildren: 0.15 },
+  },
+};
+const fadeUp = {
+  hidden: { opacity: 0, y: 22 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+};
+const fade = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { duration: 0.6, ease: "easeOut" } },
+};
 
 const AboutSection = () => {
+  const { t, i18n } = useTranslation();
   const [isVisible, setIsVisible] = useState({});
-  const headingText1 = "Excellence in";
-const headingText2 = "Legal Practice";
-const parts = [
-    { text: "Mission & ", className: "text-black" },
-    { text: "Vision", className: "text-[#A29061]" },
-  ];
+  const dir = i18n.dir();
+  const lang = i18n.language || "en";
+  const isRTL = dir === "rtl";
 
+  const headingText1 = t("about.heading1", { defaultValue: t("about.heading", { defaultValue: "" }) });
+  const headingText2 = t("about.heading2", { defaultValue: "" });
+  const badge = t("about.badge", { defaultValue: isRTL ? "عن مكتبنا" : "ABOUT OUR FIRM" });
+
+  const desc1 = t("about.description1", { defaultValue: t("about.p1", { defaultValue: "" }) });
+  const desc2 = t("about.description2", { defaultValue: "" });
+
+  const expertiseItems = t("about.expertise.items", { returnObjects: true }) || [];
+
+  // observe once (optional; used for a tiny fade on the section group)
   useEffect(() => {
-    const observer = new IntersectionObserver(
+    const ob = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
-          setIsVisible(prev => ({
-            ...prev,
-            [entry.target.id]: entry.isIntersecting
-          }));
-        });
+        entries.forEach((e) => setIsVisible((p) => ({ ...p, [e.target.id]: e.isIntersecting })));
       },
-      { threshold: 0.3 }
+      { threshold: 0.25 }
     );
-
-    const elements = document.querySelectorAll('[id^="animate-"]');
-    elements.forEach(el => observer.observe(el));
-
-    return () => observer.disconnect();
+    document.querySelectorAll('[data-observe="true"]').forEach((el) => ob.observe(el));
+    return () => ob.disconnect();
   }, []);
 
+  /* ---- Parallax / tilt for the hero image ---- */
+  const imgRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: imgRef,
+    offset: ["start end", "end start"], // starts when image enters, ends when it leaves
+  });
+  const y = useTransform(scrollYProgress, [0, 1], [26, -26]);       // vertical parallax
+  const rotate = useTransform(scrollYProgress, [0, 1], [0.8, -0.8]); // subtle tilt
+  const scale = useTransform(scrollYProgress, [0, 1], [1.02, 1.0]);  // slight shrink on scroll
+
   return (
-    <div  className="bg-white text-black overflow-hidden relative">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundColor: 'rgba(162, 144, 97, 0.1)' }}></div>
-        <div 
-          className="absolute inset-0" 
-          style={{
-            backgroundImage: `radial-gradient(circle at 25% 25%, rgba(162, 144, 97, 0.1) 0%, transparent 50%),
-                             radial-gradient(circle at 75% 75%, rgba(162, 144, 97, 0.05) 0%, transparent 50%)`
-          }}
-        ></div>
+    // 🔒 Lock overall layout to LTR so columns never flip
+    <main
+      id="about"
+      dir="ltr"
+      className="relative bg-[#f5f0eb]"
+      style={{ scrollMarginTop: "var(--nav-safe, 8rem)", ["--text"]: TEXT }}
+    >
+  {/* ===== Expertise list (your component already supports animation if added) ===== */}
+      <ExpertiseList items={expertiseItems} />
+
+       {/* ===== Mission & Vision (image cards with hover reveal) ===== */}
+      <MissionVisionSimple />
+
+
+      {/* ===== Top: text left, image right ===== */}
+      <div className="max-w-7xl mx-auto px-6 py-14 sm:py-20">
+        <motion.div
+          className="grid lg:grid-cols-[1.1fr_.9fr] gap-10 items-center"
+          data-observe="true"
+          id="top-row"
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.35 }}
+          variants={container}
+        >
+          {/* Left Copy (text direction & alignment follow language) */}
+          <div dir={dir} className={isRTL ? "text-right" : "text-left"}>
+            <motion.div variants={fadeUp}>
+              <div
+                className={`inline-flex px-4 py-2 rounded-full border mb-5 ${isRTL ? "ml-auto" : "mr-auto"}`}
+                style={{ borderColor: "rgba(1,108,55,.25)", color: GREEN, backgroundColor: "rgba(1,108,55,.06)" }}
+              >
+                <span className="text-xs sm:text-sm font-medium">{badge}</span>
+              </div>
+            </motion.div>
+
+            {/* Animate the headings as one block to keep SplitHeading intact */}
+            <motion.div variants={fadeUp}>
+             
+              <SplitHeading top={headingText1} bottom={headingText2} color={GREEN} dir={dir} align={isRTL ? "end" : "start"}  />
+              
+            </motion.div>
+
+            <motion.div className="mt-5 space-y-5">
+              {desc1 && (
+                <motion.p variants={fadeUp} className="text-gray-700 text-base sm:text-lg leading-relaxed">
+                  <RichText text={desc1} />
+                </motion.p>
+              )}
+              {desc2 && (
+                <motion.p variants={fadeUp} className="text-gray-600 text-base leading-relaxed">
+                  {desc2}
+                </motion.p>
+              )}
+            </motion.div>
+
+            {/* Stats under copy */}
+            <motion.div className="mt-8" variants={fadeUp}>
+              <StatsRow t={t} lang={lang} />
+            </motion.div>
+          </div>
+
+          {/* Right Image (always on the right) */}
+          <motion.div
+            ref={imgRef}
+            style={{ y, rotateZ: rotate, scale }}
+            variants={fade}
+            className="relative"
+          >
+            <div className="relative overflow-hidden shadow-xl ring-1 ring-black/5">
+              {/* the actual image, with the clipped corner */}
+              <img
+                src="/assets/about-2.jpg"
+                alt={isRTL ? "الرياض" : "Riyadh skyline"}
+                className="w-full h-[30rem] object-cover will-change-transform"
+                style={{
+                  clipPath:
+                    "polygon(0% 0%, 100% 0%, 100% 100%, 15% 100%, 0% 88%, 0% 0%)",
+                  WebkitClipPath:
+                    "polygon(0% 0%, 100% 0%, 100% 100%, 15% 100%, 0% 88%, 0% 0%)",
+                }}
+              />
+
+              {/* breathing vignette for depth */}
+              <motion.div
+                className="pointer-events-none absolute inset-0"
+                initial={{ opacity: 0.18 }}
+                animate={{ opacity: [0.18, 0.28, 0.18] }}
+                transition={{ duration: 3.5, repeat: Infinity, repeatType: "mirror", ease: "easeInOut" }}
+                style={{
+                  background:
+                    "radial-gradient(120% 120% at 50% 50%, rgba(0,0,0,0) 55%, rgba(0,0,0,0.25) 100%)",
+                }}
+              />
+
+              {/* soft diagonal shine that sweeps once on reveal */}
+              <motion.div
+                className="pointer-events-none absolute inset-0"
+                initial={{ x: "-120%" }}
+                whileInView={{ x: "120%" }}
+                viewport={{ once: true, amount: 0.6 }}
+                transition={{ duration: 1.2, ease: "easeOut" }}
+                style={{
+                  background:
+                    "linear-gradient(75deg, transparent 0%, rgba(255,255,255,.35) 50%, transparent 100%)",
+                  mixBlendMode: "soft-light",
+                }}
+              />
+            </div>
+          </motion.div>
+        </motion.div>
       </div>
 
-      {/* Hero About Section */}
-      <section className="relative py-32 px-6 max-w-7xl mx-auto">
-        <div className="flex flex-col lg:flex-row items-center justify-between lg:gap-0">
-          {/* Enhanced Icon Animation */}
-          <div 
-            id="animate-icon"
-            className={`w-full lg:w-1/2 flex justify-center lg:justify-start transition-all duration-1000 transform ${
-              isVisible['animate-icon'] ? 'translate-x-0 opacity-100' : '-translate-x-16 opacity-0'
-            }`}
-          >
-            <div className="relative group">
-              {/* Animated Orbital Rings */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="absolute w-96 h-96 rounded-full border-2 opacity-20 animate-spin" 
-                     style={{ 
-                       borderColor: '#A29061', 
-                       borderTopColor: 'transparent',
-                       animationDuration: '10s'
-                     }}>
-                </div>
-                <div className="absolute w-80 h-80 rounded-full border-2 opacity-30 animate-spin" 
-                     style={{ 
-                       borderColor: '#A29061', 
-                       borderRightColor: 'transparent',
-                       animationDuration: '8s',
-                       animationDirection: 'reverse'
-                     }}>
-                </div>
-              </div>
-              
-              {/* Pulsing Background */}
-              <div className="absolute inset-0 rounded-full blur-3xl opacity-30 animate-pulse" 
-                   style={{ backgroundColor: '#A29061' }}>
-              </div>
-              
-              {/* Main Icon Container with Enhanced Animation */}
-              <div className="relative bg-gradient-to-br from-white/80 to-gray-50/60 backdrop-blur-xl rounded-full p-12 border-2 shadow-2xl group-hover:scale-110 transition-all duration-700 mx-30"
-                   style={{ borderColor: 'rgba(162, 144, 97, 0.3)', boxShadow: '0 25px 50px -12px rgba(162, 144, 97, 0.2)' }}>
-                {/* Custom Icon */}
-                <div className="w-64 h-64 flex items-center justify-center group-hover:rotate-6 transition-transform duration-700">
-            <img 
-              src="/assets/about-1.jpg" 
-              alt="Legal Services Icon"
-              className="w-64 h-64 object-contain rounded-full group-hover:scale-105 group-hover:opacity-90 transition-all duration-500 filter drop-shadow-lg"
-              style={{ filter: 'drop-shadow(0 10px 20px rgba(162, 144, 97, 0.2))' }}
-            />
-          </div>
+     
+      
 
-                
-                {/* Floating Particles */}
-                <div className="absolute top-4 right-8 w-3 h-3 rounded-full animate-bounce opacity-70" 
-                     style={{ backgroundColor: '#A29061', animationDelay: '0s', animationDuration: '2s' }}>
-                </div>
-                <div className="absolute bottom-8 left-6 w-2 h-2 rounded-full animate-bounce opacity-60" 
-                     style={{ backgroundColor: '#A29061', animationDelay: '0.7s', animationDuration: '2.5s' }}>
-                </div>
-                <div className="absolute top-16 left-4 w-4 h-4 rounded-full animate-bounce opacity-50" 
-                     style={{ backgroundColor: '#A29061', animationDelay: '1.4s', animationDuration: '3s' }}>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* About Content */}
-          <div 
-            id="animate-content"
-            className={`w-full lg:w-1/2 transition-all duration-1000 transform ${
-              isVisible['animate-content'] ? 'translate-x-0 opacity-100' : 'translate-x-16 opacity-0'
-            }`}
-          >
-            <div className="space-y-8 mx-5">
-              <div>
-                <div className="inline-block px-4 py-2 rounded-full border mb-6" style={{ backgroundColor: 'rgba(162, 144, 97, 0.2)', borderColor: 'rgba(162, 144, 97, 0.3)' }}>
-                  <span className="text-sm font-medium" style={{ color: '#A29061' }}>ABOUT OUR FIRM</span>
-                </div>
-               <motion.h2
-  className="text-5xl lg:text-6xl font-bold mb-6 leading-tight text-center sm:text-left"
-  style={{
-    textShadow: "0 0 30px rgba(162, 144, 97, 0.5)", // glowing shadow
-  }}
-  initial="hidden"
-  whileInView="visible"
-  viewport={{ once: true }}
-  variants={{
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: 0.08,
-        delayChildren: 0.2,
-      },
-    },
-  }}
->
-  <span className="inline-flex flex-wrap justify-center sm:justify-start text-black">
-    {headingText1.split("").map((char, i) => (
-      <motion.span
-        key={`top-${i}`}
-        variants={{
-          hidden: { opacity: 0, y: 30 },
-          visible: { opacity: 1, y: 0 },
-        }}
-        transition={{ duration: 0.4 }}
-      >
-        {char === " " ? "\u00A0" : char}
-      </motion.span>
-    ))}
-  </span>
-  <br />
-  <span className="inline-flex flex-wrap justify-center sm:justify-start" style={{ color: "#A29061" }}>
-    {headingText2.split("").map((char, i) => (
-      <motion.span
-        key={`bottom-${i}`}
-        variants={{
-          hidden: { opacity: 0, y: 30 },
-          visible: { opacity: 1, y: 0 },
-        }}
-        transition={{ duration: 0.4 }}
-      >
-        {char === " " ? "\u00A0" : char}
-      </motion.span>
-    ))}
-  </span>
-</motion.h2>
-              </div>
-              
-              <div className="space-y-6">
-                <p className="text-xl text-gray-600 leading-relaxed">
-                  Founded in 2017, our law firm delivers comprehensive legal services across 
-                  Bahrain, Saudi Arabia, and the Gulf region.
-                </p>
-                <p className="text-lg text-gray-500 leading-relaxed">
-                  Led by expert Bahraini professionals, we offer trusted legal guidance 
-                  based on deep experience, unwavering ethics, and dedication to building 
-                  long-term relationships with our clients.
-                </p>
-              </div>
-
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-8 pt-8 border-t border-gray-300">
-                <div className="text-center">
-                  <div className="text-3xl font-bold mb-2" style={{ color: '#A29061' }}>2017</div>
-                  <div className="text-sm text-gray-600 uppercase tracking-wider">Founded</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold mb-2" style={{ color: '#A29061' }}>3+</div>
-                  <div className="text-sm text-gray-600 uppercase tracking-wider">Countries</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-black mb-2">100%</div>
-                  <div className="text-sm text-gray-600 uppercase tracking-wider">Dedicated</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Redesigned Mission & Vision Section */}
-      <section className="relative  px-6">
-        <div className="max-w-7xl mx-auto">
-          {/* Section Header */}
-          <div 
-            id="animate-header"
-            className={`text-center mb-16 transition-all duration-1000 transform ${
-              isVisible['animate-header'] ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
-            }`}
-          >
-            <div className="inline-block px-6 py-3 rounded-full border mb-6" 
-                 style={{ backgroundColor: 'rgba(162, 144, 97, 0.1)', borderColor: 'rgba(162, 144, 97, 0.2)' }}>
-              <span className="text-sm font-medium uppercase tracking-wider" style={{ color: '#A29061' }}>
-                Our Commitment
-              </span>
-            </div>
-           <motion.h2
-      className="text-4xl lg:text-5xl font-bold mb-4 flex flex-wrap justify-center"
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true }}
-      variants={{
-        hidden: {},
-        visible: {
-          transition: {
-            staggerChildren: 0.06,
-            delayChildren: 0.3,
-          },
-        },
-      }}
-    >
-      {parts.map((segment, idx) =>
-        segment.text.split("").map((char, i) => (
-          <motion.span
-            key={`${idx}-${i}`}
-            variants={{
-              hidden: { opacity: 0, y: 30 },
-              visible: { opacity: 1, y: 0 },
-            }}
-            transition={{ duration: 0.4 }}
-            className={segment.className}
-          >
-            {char === " " ? "\u00A0" : char}
-          </motion.span>
-        ))
-      )}
-    </motion.h2>
-          </div>
-
-          {/* Cards Container */}
-          <div 
-            id="animate-cards"
-            className={`relative transition-all duration-1200 transform ${
-              isVisible['animate-cards'] ? 'translate-y-0 opacity-100' : 'translate-y-16 opacity-0'
-            }`}
-          >
-            {/* Background Connection Line */}
-            {/* <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-1 rounded-full opacity-30 hidden lg:block"
-                 style={{ backgroundColor: '#A29061' }}>
-            </div> */}
-
-            <div className="grid lg:grid-cols-2 gap-12 lg:gap-24">
-              {/* Mission Card - Left Side */}
-              <div className="group relative h-96">
-                {/* Card Background Effects */}
-                <div className="absolute inset-0 rounded-3xl opacity-20 blur-xl group-hover:opacity-30 transition-all duration-500"
-                     style={{ backgroundColor: '#A29061' }}>
-                </div>
-                <div className="absolute -inset-4 rounded-3xl opacity-10 blur-2xl group-hover:opacity-20 transition-all duration-700"
-                     style={{ backgroundColor: '#A29061' }}>
-                </div>
-
-                {/* Main Card with Background Image */}
-                <div className="relative h-full rounded-3xl border-2 shadow-2xl transition-all duration-700 group-hover:scale-105 group-hover:-translate-y-4 overflow-hidden"
-                     style={{ borderColor: 'rgba(162, 144, 97, 0.3)', boxShadow: '0 25px 50px -12px rgba(162, 144, 97, 0.15)' }}>
-                  
-                  {/* Background Image */}
-                  <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-110"
-                       style={{
-                         backgroundImage: 'url("/assets/vision.jpg")',
-                         backgroundSize: 'cover',
-                         backgroundPosition: 'center',
-                         backgroundRepeat: 'no-repeat'
-                       }}>
-                  </div>
-                  
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/20 group-hover:from-black/70 transition-all duration-500">
-                  </div>
-                  
-                  {/* Brand Color Overlay */}
-                  <div className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500"
-                       style={{ backgroundColor: '#A29061' }}>
-                  </div>
-
-                  {/* Content */}
-                  <div className="relative h-full flex flex-col justify-end p-8 lg:p-10">
-                    <div className="space-y-4">
-                      <h3 className="text-3xl lg:text-4xl font-bold text-white mb-4 group-hover:text-opacity-90 transition-all duration-300">
-                        Our Mission
-                      </h3>
-                      <div className="w-16 h-1 rounded-full transition-all duration-500 group-hover:w-24"
-                           style={{ backgroundColor: '#A29061' }}>
-                      </div>
-                      <p className="text-gray-200 leading-relaxed text-lg group-hover:text-white transition-colors duration-300">
-                        We offer trusted legal services based on science, experience, and 
-                        unwavering ethics to build long-lasting client relationships that 
-                        drive success and growth.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Decorative Corner Elements */}
-                  <div className="absolute top-4 right-4 w-8 h-8 rounded-full opacity-30 group-hover:opacity-50 transition-opacity duration-300"
-                       style={{ backgroundColor: '#A29061' }}>
-                  </div>
-                  <div className="absolute bottom-4 left-4 w-6 h-6 rounded-full opacity-20 group-hover:opacity-40 transition-opacity duration-300"
-                       style={{ backgroundColor: '#A29061' }}>
-                  </div>
-                </div>
-              </div>
-
-              {/* Vision Card - Right Side */}
-              <div className="group relative h-96">
-                {/* Card Background Effects */}
-                <div className="absolute inset-0 rounded-3xl opacity-20 blur-xl group-hover:opacity-30 transition-all duration-500"
-                     style={{ backgroundColor: '#A29061' }}>
-                </div>
-                <div className="absolute -inset-4 rounded-3xl opacity-10 blur-2xl group-hover:opacity-20 transition-all duration-700"
-                     style={{ backgroundColor: '#A29061' }}>
-                </div>
-
-                {/* Main Card with Background Image */}
-                <div className="relative h-full rounded-3xl border-2 shadow-2xl transition-all duration-700 group-hover:scale-105 group-hover:-translate-y-4 overflow-hidden"
-                     style={{ borderColor: 'rgba(162, 144, 97, 0.3)', boxShadow: '0 25px 50px -12px rgba(162, 144, 97, 0.15)' }}>
-                  
-                  {/* Background Image */}
-                  <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-110"
-                       style={{
-                         backgroundImage: 'url("/assets/mission.jpg")',
-                         backgroundSize: 'cover',
-                         backgroundPosition: 'center',
-                         backgroundRepeat: 'no-repeat'
-                       }}>
-                  </div>
-                  
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/20 group-hover:from-black/70 transition-all duration-500">
-                  </div>
-                  
-                  {/* Brand Color Overlay */}
-                  <div className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500"
-                       style={{ backgroundColor: '#A29061' }}>
-                  </div>
-
-                  {/* Content */}
-                  <div className="relative h-full flex flex-col justify-end p-8 lg:p-10">
-                    <div className="space-y-4">
-                      <h3 className="text-3xl lg:text-4xl font-bold text-white mb-4 group-hover:text-opacity-90 transition-all duration-300">
-                        Our Vision
-                      </h3>
-                      <div className="w-16 h-1 rounded-full transition-all duration-500 group-hover:w-24"
-                           style={{ backgroundColor: '#A29061' }}>
-                      </div>
-                      <p className="text-gray-200 leading-relaxed text-lg group-hover:text-white transition-colors duration-300">
-                        To lead a growing Gulf-wide legal network under a unified 
-                        standard of professionalism, ethics, and reliability that 
-                        sets the benchmark for excellence.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Decorative Corner Elements */}
-                  <div className="absolute top-4 left-4 w-8 h-8 rounded-full opacity-30 group-hover:opacity-50 transition-opacity duration-300"
-                       style={{ backgroundColor: '#A29061' }}>
-                  </div>
-                  <div className="absolute bottom-4 right-4 w-6 h-6 rounded-full opacity-20 group-hover:opacity-40 transition-opacity duration-300"
-                       style={{ backgroundColor: '#A29061' }}>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Bottom Accent */}
-      {/* <div className="h-2" style={{ backgroundColor: '#A29061' }}></div> */}
-    </div>
+     
+    </main>
   );
 };
 

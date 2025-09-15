@@ -1,1 +1,36 @@
 @import "tailwindcss";
+
+/* Lora variable (normal + italic) */
+@font-face{
+  font-family: "FirmSerifAlt";
+  src: url("/fonts/Lora/Lora-VariableFont_wght.woff2") format("woff2");
+  font-weight: 300 800; /* adjust if your file supports 100–900 */
+  font-style: normal;
+  font-display: swap;
+}
+@font-face{
+  font-family: "FirmSerifAlt";
+  src: url("/fonts/Lora/Lora-Italic-VariableFont_wght.woff2") format("woff2");
+  font-weight: 300 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Noto Serif Arabic variable (Google often ships as .ttf) */
+@font-face{
+  font-family: "FirmSerifArabicAlt";
+  src: url("/fonts/NotoSerifArabic/NotoSerifArabic-VariableFont_wght.ttf") format("truetype");
+  /* if it’s actually a variable TTF you can leave it as 'truetype' —
+     browsers understand variable TTFs */
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Auto switch by document direction */
+@layer base{
+  html{ font-family: "FirmSerifAlt", serif; }
+  html[dir="rtl"]{ font-family: "FirmSerifArabicAlt", serif; }
+}
+
+

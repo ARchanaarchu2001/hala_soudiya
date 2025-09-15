@@ -1,125 +1,232 @@
-import React , { useState } from "react";
-import { motion } from "framer-motion";
-import { Mail, Phone, MapPin } from "lucide-react";
+// src/pages/ContactPage.jsx
+import React, { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Mail, Phone, MapPin, Loader2, MessageCircle } from "lucide-react";
+import emailjs from "@emailjs/browser";
 
-const ContactPage = () => {
-    const [isHovered, setIsHovered] = useState(false);
-    const headingText = "Get In Touch";
+// Brand accent
+const GREEN = "#000000";
+
+// ---- EmailJS (use your own IDs/keys) ----
+const SERVICE_ID  = "service_cfz3esk";
+const TEMPLATE_ID = "template_0qslmvf";
+const PUBLIC_KEY  = "GExPI6OzFSXlGPrpB";
+
+export default function ContactPage() {
+  const { t, i18n } = useTranslation();
+  const formRef = useRef(null);
+  const [sending, setSending] = useState(false);
+  const [status, setStatus] = useState(null); // "ok" | "error" | null
+  const dir = i18n.dir(); // "ltr" | "rtl"
+
+  // Translation-driven content
+  const heading            = t("contact.heading");
+  const description        = t("contact.description");
+  const phone              = t("contact.phone");
+  const email              = t("contact.email");
+  const address            = t("contact.address");
+  const nameLabel          = t("contact.nameLabel");
+  const namePlaceholder    = t("contact.namePlaceholder");
+  const emailLabel         = t("contact.emailLabel");
+  const emailPlaceholder   = t("contact.emailPlaceholder");
+  const messageLabel       = t("contact.messageLabel");
+  const messagePlaceholder = t("contact.messagePlaceholder");
+  const buttonText         = t("contact.button");
+  const whatsapp           = t("contact.whatsapp", { defaultValue: "" });
+
+  const toLatinDigits = (s = "") =>
+      s
+   .replace(/[٠-٩]/g, (d) => "0123456789"["٠١٢٣٤٥٦٧٨٩".indexOf(d)]) // Arabic-Indic
+   .replace(/[۰-۹]/g, (d) => "0123456789"["۰۱۲۳۴۵۶۷۸۹".indexOf(d)]); // Persian
+
+
+  const telHref  = `tel:${toLatinDigits(String(phone || "")).replace(/[^\d+]/g, "")}`;
+  const mailHref = `mailto:${email || ""}`;
+
+
+  const rawWhatsApp = (whatsapp && whatsapp.trim()) || phone || "";
+ const waNumber    = toLatinDigits(rawWhatsApp).replace(/\D/g, ""); // digits only for wa.me
+ const waHref      = waNumber ? `https://wa.me/${waNumber}` : "";
+
+
+    
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+
+    // Honeypot (spam trap)
+    const hp = formRef.current?.elements?.namedItem("company")?.value;
+    if (hp) return;
+
+    try {
+      setSending(true);
+      setStatus(null);
+      await emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, formRef.current, {
+        publicKey: PUBLIC_KEY,
+      });
+      formRef.current?.reset();
+      setStatus("ok");
+    } catch (err) {
+      console.error(err);
+      setStatus("error");
+    } finally {
+      setSending(false);
+    }
+  };
+
   return (
-    <div id="contact" className="bg-white py-20 px-6">
-      <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12">
-        {/* Contact Info */}
-        <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-        >
-          <motion.h2
-      className="text-3xl font-bold text-gray-800 mb-6 uppercase text-center"
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true }}
-      variants={{
-        hidden: {},
-        visible: {
-          transition: {
-            staggerChildren: 0.07,
-            delayChildren: 0.2,
-          },
-        },
-      }}
-    >
-      <span className="inline-flex flex-wrap justify-center">
-        {headingText.split("").map((char, i) => (
-          <motion.span
-            key={i}
-            variants={{
-              hidden: { opacity: 0, y: 30 },
-              visible: { opacity: 1, y: 0 },
-            }}
-            transition={{ duration: 0.4 }}
+    // Lock the *layout* to LTR so columns never swap; text aligns per-language
+    <main id="contact" dir="ltr" className="bg-white">
+      <div className="max-w-7xl mx-auto px-6 py-12 md:py-16">
+        <div className="grid md:grid-cols-2 gap-10 items-start">
+          {/* LEFT: Contact info (text direction follows language) */}
+          <aside
+            dir={dir}
+            className={`rounded-2xl border bg-white p-6 md:p-8 shadow-sm ${dir === "rtl" ? "text-right" : "text-left"}`}
+            style={{ borderColor: "rgba(0,0,0,.08)" }}
           >
-            {char === " " ? "\u00A0" : char}
-          </motion.span>
-        ))}
-      </span>
-    </motion.h2>
-          <p className="text-gray-600 mb-8">
-            We're here to help. Reach out for inquiries, consultations, or questions
-            about our legal services.
-          </p>
-          <div className="space-y-4">
-            <div className="flex items-center gap-4">
-              <Phone className="text-[#A29061]" />
-              <span className="text-gray-700">+971 50 123 4567</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <Mail className="text-[#A29061]" />
-              <span className="text-gray-700">contact@halaasaudia.com</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <MapPin className="text-[#A29061]" />
-              <span className="text-gray-700">
-                Office 203, Marina Plaza, Dubai Marina, UAE
-              </span>
-            </div>
-          </div>
-        </motion.div>
+            <h1
+              className="text-3xl md:text-4xl font-extrabold mb-3"
+              style={{ color: GREEN }}
+            >
+              {heading}
+            </h1>
+            {description && (
+              <p className="text-gray-700 leading-relaxed mb-6">
+                {description}
+              </p>
+            )}
 
-        {/* Contact Form */}
-        <motion.form
-          initial={{ opacity: 0, x: 50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="bg-gray-50 p-8 rounded-3xl shadow-lg space-y-6"
-        >
-          <div>
-            <label className="block text-gray-700 mb-1">Name</label>
-            <input
-              type="text"
-              placeholder="Your full name"
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A29061]"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 mb-1">Email</label>
-            <input
-              type="email"
-              placeholder="you@example.com"
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A29061]"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 mb-1">Message</label>
-            <textarea
-              rows="5"
-              placeholder="How can we assist you?"
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A29061]"
-            ></textarea>
-          </div>
-         <motion.button
-      type="submit"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className="relative w-full bg-[#A29061] text-white font-semibold py-3 px-6 rounded-xl hover:bg-[#8c764d] transition-colors duration-300 overflow-hidden"
-    >
-      {/* Shine Effect */}
-      <motion.div
-        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-        initial={{ x: "-100%" }}
-        animate={isHovered ? { x: "100%" } : { x: "-100%" }}
-        transition={{ duration: 0.6, ease: "easeInOut" }}
-      />
+            <ul className="space-y-4">
+              {!!phone && (
+                <li className="flex items-start gap-3">
+                  <Phone className="mt-0.5 text-[color:var(--accent)]" style={{ color: GREEN }} />
+                  <a href={telHref} className="text-gray-900 hover:text-[color:var(--accent)]" style={{ "--accent": GREEN }}>
+                    {phone}
+                  </a>
+                </li>
+              )}
 
-      {/* Button Text */}
-      <span className="relative z-10">Send Message</span>
-    </motion.button>
-        </motion.form>
+               {!!waHref && (
+                <li className="flex items-start gap-3 break-words">
+                  <MessageCircle className="mt-0.5" style={{ color: GREEN }} />
+                  <a
+                    href={waHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-900 hover:text-[color:var(--accent)]"
+                    style={{ "--accent": GREEN }}
+                    aria-label="Open WhatsApp chat"
+                  >
+                    {rawWhatsApp} <span className="sr-only">(WhatsApp)</span>
+                  </a>
+                </li>
+              )}
+
+              {!!email && (
+                <li className="flex items-start gap-3 break-words">
+                  <Mail className="mt-0.5" style={{ color: GREEN }} />
+                  <a href={mailHref} className="text-gray-900 hover:text-[color:var(--accent)]" style={{ "--accent": GREEN }}>
+                    {email}
+                  </a>
+                </li>
+              )}
+              {!!address && (
+                <li className="flex items-start gap-3">
+                  <MapPin className="mt-0.5" style={{ color: GREEN }} />
+                  <span className="text-gray-900">{address}</span>
+                </li>
+              )}
+            </ul>
+          </aside>
+
+          {/* RIGHT: Form (text direction follows language) */}
+          <form
+            ref={formRef}
+            onSubmit={onSubmit}
+            dir={dir}
+            className={`rounded-2xl border bg-white p-6 md:p-8 shadow-lg space-y-5 ${dir === "rtl" ? "text-right" : "text-left"}`}
+            style={{ borderColor: "rgba(0,0,0,.08)" }}
+          >
+            {/* Honeypot */}
+            <input type="text" name="company" autoComplete="off" tabIndex="-1" className="hidden" aria-hidden="true" />
+
+            {/* Hidden (optional) */}
+            <input type="hidden" name="lang" defaultValue={i18n.language || "en"} />
+
+            <div>
+              <label htmlFor="name" className="block text-gray-800 mb-1">
+                {nameLabel}
+              </label>
+              <input
+                id="name"
+                name="user_name"
+                type="text"
+                placeholder={namePlaceholder}
+                autoComplete="name"
+                required
+                className="w-full px-4 py-3 rounded-xl border bg-white focus:outline-none focus:ring-2"
+                style={{ borderColor: "rgba(0,0,0,.12)", boxShadow: `0 0 0 0 rgba(0,0,0,0)` }}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="email" className="block text-gray-800 mb-1">
+                {emailLabel}
+              </label>
+              <input
+                id="email"
+                name="user_email"
+                type="email"
+                placeholder={emailPlaceholder}
+                autoComplete="email"
+                required
+                className="w-full px-4 py-3 rounded-xl border bg-white focus:outline-none focus:ring-2"
+                style={{ borderColor: "rgba(0,0,0,.12)" }}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="message" className="block text-gray-800 mb-1">
+                {messageLabel}
+              </label>
+              <textarea
+                id="message"
+                name="message"
+                rows="6"
+                placeholder={messagePlaceholder}
+                required
+                className="w-full px-4 py-3 rounded-xl border bg-white focus:outline-none focus:ring-2"
+                style={{ borderColor: "rgba(0,0,0,.12)" }}
+              />
+            </div>
+
+            {/* Status banners */}
+            {status === "ok" && (
+              <div className="rounded-xl bg-green-50 border border-green-200 text-green-800 px-4 py-3">
+                {dir === "rtl" ? "تم إرسال رسالتك بنجاح." : "Your message has been sent successfully."}
+              </div>
+            )}
+            {status === "error" && (
+              <div className="rounded-xl bg-red-50 border border-red-200 text-red-800 px-4 py-3">
+                {dir === "rtl" ? "حدث خطأ أثناء الإرسال. جرّب مرة أخرى." : "Something went wrong. Please try again."}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={sending}
+              className={`w-full inline-flex items-center justify-center gap-2 rounded-xl py-3.5 px-6 text-white font-semibold transition-colors ${
+                sending ? "bg-emerald-400 cursor-not-allowed" : "hover:opacity-95"
+              }`}
+              style={{ backgroundColor: GREEN }}
+            >
+              {sending && <Loader2 className="w-4 h-4 animate-spin" />}
+              {sending ? (dir === "rtl" ? "جاري الإرسال..." : "Sending...") : buttonText}
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
+    </main>
   );
-};
-
-export default ContactPage;
+}

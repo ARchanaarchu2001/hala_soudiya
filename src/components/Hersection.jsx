@@ -1,182 +1,196 @@
-import React from "react";
-import { motion } from "framer-motion";
+// src/components/Hersection.jsx
+import React, { useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { regionKeyFrom, openServices } from "../utils/region";
 
-const HeroSection = () => {
+// Palette
+const CREAM = "#f5f0eb"; // requested color
+const CREAM_12 = "rgba(245, 240, 235, 0.12)";
+const CREAM_18 = "rgba(245, 240, 235, 0.18)";
+const CREAM_20 = "rgba(245, 240, 235, 0.20)";
+const CREAM_28 = "rgba(245, 240, 235, 0.28)";
+
+export default function Hersection() {
+  const { t, i18n } = useTranslation();
+  const dir = i18n.dir();
+  const isRTL = dir === "rtl";
+
+  // i18n content
+  const badge = t("hero.badge", {
+    defaultValue:
+      "Certified legal & documentation service provider for Saudi Arabia and Bahrain",
+  });
+
+  const titleLines = useMemo(
+    () =>
+      t("hero.titleLines", {
+        returnObjects: true,
+        defaultValue: [
+          "Certified Legal & Documentation",
+          "Service Provider in Saudi Arabia & Bahrain",
+        ],
+      }) || [],
+    [t, i18n.language]
+  );
+
+  const leadTitle = t("hero.leadTitle", {
+    defaultValue: "Achieve Your Vision and Establish Your Company",
+  });
+
+  const regions =
+    t("hero.regions", {
+      returnObjects: true,
+      defaultValue: ["Saudi Arabia", "Bahrain", "United Arab Emirates"],
+    }) || [];
+
+  const goTo = (label) => {
+    const key = regionKeyFrom(label, i18n);
+    openServices(key);
+    const el = document.getElementById("services");
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (history.replaceState) history.replaceState(null, "", "#services");
+  };
+
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black">
-      {/* Background video */}
+    <section
+      id="home"
+      dir="ltr" // keep layout steady; only text aligns per language
+      className="relative w-full overflow-hidden md:pt-0 pt-[calc(var(--nav-safe)+4px)] min-h-[100svh] md:min-h-screen"
+     
+    >
+      {/* === Background video === */}
       <video
+        className="absolute inset-0 w-full h-full object-cover"
         autoPlay
         loop
         muted
         playsInline
-        className="absolute inset-0 w-full h-full object-cover"
-        src="/assets/hero-bg.mp4"
+        src="/assets/hero-org.mp4"
       />
 
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black/50 "></div>
-
-      {/* Floating particles */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(15)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-2 h-2 bg-[#A29061]/20 rounded-full animate-float"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 5}s`,
-              animationDuration: `${4 + Math.random() * 3}s`
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Main Content */}
-      <div className="relative z-10 text-center px-6 max-w-3xl text-white">
-        {/* Heading */}
-       <motion.h1
-  className="text-4xl md:text-6xl font-bold leading-tight flex flex-wrap justify-center text-center"
-  style={{
-    textShadow: `0 0 30px #A2906150`, // optional golden glow
-  }}
-  initial="hidden"
-  whileInView="visible"
-  viewport={{ once: true }}
-  variants={{
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: 0.05,
-        delayChildren: 0.3,
-      },
-    },
-  }}
->
-  {[
-    { text: "Officially ", className: "text-white " },
-    { text: "Certified", className: "text-[#A29061] " },
-    { text: " Saudi ", className: "text-white  " },
-    {
-      text: "Law Firm",
-      className: "bg-gradient-to-r from-white via-gray-200 to-white bg-clip-text text-transparent",
-    },
-  ].map((segment, idx) =>
-    segment.text.split("").map((char, i) => (
-      <motion.span
-        key={`${idx}-${i}`}
-        variants={{
-          hidden: { opacity: 0, y: 30 },
-          visible: { opacity: 1, y: 0 },
+      {/* Readability gradient (top/bottom dark) */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(0,0,0,.45) 0%, rgba(0,0,0,.25) 35%, rgba(0,0,0,.35) 100%)",
         }}
-        transition={{ duration: 0.4 }}
-        className={segment.className}
-      >
-        {char === " " ? "\u00A0" : char}
-      </motion.span>
-    ))
-  )}
-</motion.h1>
+      />
 
+      {/* Soft CREAM tint for brand feel */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundColor: CREAM,
+          mixBlendMode: "soft-light",
+          opacity: 0.22,
+        }}
+      />
 
-        {/* Motto */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 1 }}
-          className="mt-6 text-lg md:text-xl text-white/90 italic"
+      {/* Very subtle vignette for focus */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(120% 120% at 50% 50%, rgba(0,0,0,0) 55%, rgba(0,0,0,.22) 100%)",
+        }}
+      />
+
+      {/* === Content over video === */}
+      <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-8 ">
+        <div
+          className=" min-h-[calc(100vh-72px)] flex flex-col items-center justify-center   text-center "
+          dir={dir}
+         
         >
-          “Defending rights. Delivering justice.{" "}
-          <span className="text-[#A29061] font-semibold not-italic">
-            Shaping the future of law across the region.”
-          </span>
-        </motion.p>
+          {/* Badge */}
+          {badge && (
+            <div >
+              <span
+                className="inline-block px-4 py-2  rounded-full backdrop-blur-md text-xs sm:text-sm  text-center max-w-[92vw] whitespace-normal break-words"
+                style={{
+                  color: CREAM,
+                  border: `1px solid ${CREAM_28}`,
+                  backgroundColor: CREAM_12,
+                }}
+              >
+                {badge}
+              </span>
+            </div>
+          )}
 
-        {/* Description */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8, duration: 1 }}
-          className="mt-4 text-base md:text-lg text-white/70"
-        >
-          Providing trusted legal services across Bahrain, Saudi Arabia, and the Gulf.
-        </motion.p>
+          {/* Title (multi-line) */}
+          <h1
+            className="mt-5 font-extrabold leading-tight whitespace-pre-wrap"
+            style={{
+              color: CREAM,
+              fontSize: "clamp(2.2rem, 4.2vw, 4rem)",
+              textShadow: "0 8px 28px rgba(0,0,0,0.35)",
+            }}
+          >
+            {(titleLines && titleLines.length
+              ? titleLines
+              : [
+                  "Certified Legal & Documentation",
+                  "Service Provider in Saudi Arabia & Bahrain",
+                ]
+            ).join("\n")}
+          </h1>
 
-        {/* Buttons */}
+          {/* Lead subheading */}
+          {leadTitle && (
+            <p
+              className="mt-4 max-w-3xl font-semibold"
+              style={{
+                color: CREAM,
+                fontSize: "clamp(1.05rem, 1.4vw, 1.35rem)",
+                textShadow: "0 4px 18px rgba(0,0,0,0.35)",
+                opacity: 0.95,
+              }}
+            >
+              {leadTitle}
+            </p>
+          )}
 
-        
-        <motion.div
-  initial={{ opacity: 0, y: 20 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ delay: 1.2, duration: 0.8 }}
-  className="mt-8 flex justify-center gap-4 flex-wrap"
->
-  {/* Button 1 with Shine */}
-  <div className="relative group overflow-hidden rounded-full">
-    <button className="relative z-10 px-6 py-3 bg-[#A29061] text-white rounded-full font-medium transition duration-300">
-      Get Legal Support
-    </button>
-    <motion.div
-      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent w-full h-full"
-      initial={{ x: "-100%" }}
-      animate={{ x: "100%" }}
-      transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
-    />
-  </div>
 
-  {/* Button 2 with Shine */}
-  <div className="relative group overflow-hidden rounded-full border border-white">
-    <button className="relative z-10 px-6 py-3 text-white rounded-full font-medium transition duration-300">
-      Learn More
-    </button>
-    <motion.div
-      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent w-full h-full"
-      initial={{ x: "-100%" }}
-      animate={{ x: "100%" }}
-      transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
-    />
-  </div>
-</motion.div>
+          {/* Regions hide */}
 
+          {/* Region buttons */}
+          {/* {regions.length > 0 && (
+            <div
+              className={`mt-6 flex flex-wrap gap-3 ${
+                isRTL ? "justify-start" : "justify-start"
+              }`}
+              dir="ltr"
+            >
+              {regions.map((r, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => goTo(r)}
+                  className="inline-flex items-center gap-3 px-4 py-2 rounded-full transition"
+                  style={{
+                    color: CREAM,
+                    border: `1.2px solid ${CREAM_20}`,
+                    backgroundColor: "transparent",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = CREAM_12;
+                    e.currentTarget.style.borderColor = CREAM_28;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "transparent";
+                    e.currentTarget.style.borderColor = CREAM_20;
+                  }}
+                >
+                  <span className="font-semibold">{r}</span>
+                </button>
+              ))}
+            </div>
+          )} */}
+
+        </div>
       </div>
-
-      {/* Accent Circles */}
-      <div className="absolute -top-20 -left-20 w-40 h-40 border border-[#A29061]/10 rounded-full animate-spin-slow"></div>
-      <div className="absolute -bottom-20 -right-20 w-60 h-60 border border-[#A29061]/5 rounded-full animate-spin-reverse"></div>
-
-      {/* Keep existing CSS for float/spin */}
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% {
-            transform: translateY(0px) rotate(0deg);
-            opacity: 0.3;
-          }
-          50% {
-            transform: translateY(-20px) rotate(180deg);
-            opacity: 1;
-          }
-        }
-        @keyframes spin-slow {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        @keyframes spin-reverse {
-          from { transform: rotate(360deg); }
-          to { transform: rotate(0deg); }
-        }
-        .animate-float {
-          animation: float linear infinite;
-        }
-        .animate-spin-slow {
-          animation: spin-slow 20s linear infinite;
-        }
-        .animate-spin-reverse {
-          animation: spin-reverse 18s linear infinite;
-        }
-      `}</style>
     </section>
   );
-};
-
-export default HeroSection;
+}
