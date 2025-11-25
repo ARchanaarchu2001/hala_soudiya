@@ -1,5 +1,5 @@
 // src/pages/ServiceSection.jsx
-import React, { useMemo, useEffect, useRef } from "react";
+import React, { useMemo, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -13,13 +13,11 @@ import {
   asArray as A,
 } from "../../utils/servicesUtils";
 
-/* ---- brand tokens ---- */
 const BG     = "#f5f0eb";
 const BRAND  = "#006C3D";
 const BORDER = "rgba(0,0,0,0.08)";
 const INK    = "#0f172a";
 
-/** Stable Saudi section ids -> indices (for picking one panel) */
 const SAUDI_ID_TO_INDEX = {
   foreign: 0,
   "with-partner": 1,
@@ -29,117 +27,88 @@ const SAUDI_ID_TO_INDEX = {
   licenses: 5,
 };
 
-/** Stable Saudi list (for right sidebar) with safe fallbacks */
-const SAUDI_SECTIONS = [
-  { id: "foreign",        pick: (S) => O(S.foreign).title,        fallback: "For Foreign Investors" },
-  { id: "with-partner",   pick: (S) => O(S.withPartner).title,    fallback: "For Saudi/GCC with Foreign Partner" },
-  { id: "premium",        pick: (S) => O(S.premium).title,        fallback: "Saudi Premium Residency Program" },
-  { id: "local-gcc",      pick: (S) => O(S.localGCC).title,       fallback: "For Saudi and GCC Investors" },
-  { id: "company-types",  pick: (S) => O(S.companyTypes).heading, fallback: "Types of Companies" },
-  { id: "licenses",       pick: (S) => O(S.licenses).heading,     fallback: "Types of Investment Licenses" },
-];
-
-/* Right column: clean, right-aligned list (no lines) + keyboard navigation */
-const RightTitleList = ({ items = [], activeId, onSelect }) => {
-  const containerRef = useRef(null);
-  const activeRef = useRef(null);
-
-  useEffect(() => {
-    if (activeRef.current && containerRef.current) {
-      activeRef.current.scrollIntoView({ block: "nearest", behavior: "smooth" });
-    }
-  }, [activeId]);
-
-  const onKeyDown = (e) => {
-    const idx = items.findIndex((it) => it.id === activeId);
-    if (idx < 0) return;
-
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      onSelect?.(items[Math.min(idx + 1, items.length - 1)].id);
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      onSelect?.(items[Math.max(idx - 1, 0)].id);
-    } else if (e.key === "Home") {
-      e.preventDefault();
-      onSelect?.(items[0]?.id);
-    } else if (e.key === "End") {
-      e.preventDefault();
-      onSelect?.(items[items.length - 1]?.id);
-    } else if (e.key === "Enter") {
-      e.preventDefault();
-      onSelect?.(activeId);
-    }
-  };
-
+// ---- CTA (supports variant + custom link) ----
+const CtaButton = ({ label, to = "/contact", variant = "primary" }) => {
+  const isPrimary = variant === "primary";
   return (
-    <nav aria-label="Other services" className="rounded-lg bg-white shadow-sm" style={{ border: `1px solid ${BORDER}` }}>
-      <div
-        ref={containerRef}
-        className="max-h-[60vh] overflow-auto p-2"
-        onKeyDown={onKeyDown}
-        tabIndex={0}
-        role="listbox"
-        aria-activedescendant={activeId ? `svc-${activeId}` : undefined}
-      >
-        <ul className="space-y-2">
-          {items.map((it) => {
-            const active = it.id === activeId;
-            return (
-              <li key={it.id} role="none">
-                <button
-                  id={`svc-${it.id}`}
-                  type="button"
-                  ref={active ? activeRef : null}
-                  onClick={() => onSelect?.(it.id)}
-                  aria-current={active ? "page" : undefined}
-                  role="option"
-                  aria-selected={active}
-                  className={[
-                    "w-full px-4 py-3 rounded-md font-medium transition text-right",
-                    active ? "cursor-default" : "hover:bg-[var(--beige)]/80",
-                  ].join(" ")}
-                  style={{
-                    background: active ? BG : "transparent",
-                    color: active ? BRAND : INK,
-                    boxShadow: active ? `0 0 0 1px ${BRAND}33 inset` : "none",
-                    ["--beige"]: BG,
-                  }}
-                >
-                  <span className="inline-block truncate max-w-full">{it.title}</span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-    </nav>
+    <Link
+      to={to}
+      className={[
+        "inline-flex items-center gap-2 px-4 py-2 rounded-md font-semibold transition",
+        isPrimary ? "text-white hover:opacity-90" : "text-[var(--ink)] hover:bg-gray-50"
+      ].join(" ")}
+      style={{
+        background: isPrimary ? "black" : "white",
+        border: `1px solid ${BORDER}`,
+        boxShadow: `0 1px 0 ${BORDER}`,
+        ["--ink"]: INK,
+      }}
+    >
+      {label}
+    </Link>
   );
 };
 
+// ---- Right sidebar list (RTL-aware) ----
+const RightTitleList = ({ items = [], activeId, onSelect, dir = "ltr" }) => (
+  <nav
+    aria-label="Other services"
+    className="rounded-lg bg-white p-3 shadow-sm"
+    style={{ border: `1px solid ${BORDER}` }}
+  >
+    <ul className="space-y-2">
+      {items.map((it) => {
+        const active = it.id === activeId;
+        return (
+          <li key={it.id}>
+            <button
+              type="button"
+              onClick={() => onSelect?.(it.id)}
+              aria-current={active ? "page" : undefined}
+              className={[
+                "w-full px-4 py-3 rounded-md font-medium transition",
+                dir === "rtl" ? "text-right" : "text-left",
+                active ? "cursor-default" : "hover:bg-[var(--beige)]/80",
+              ].join(" ")}
+              style={{
+                background: active ? BG : "transparent",
+                color: active ? BRAND : INK,
+                boxShadow: active ? `0 0 0 1px ${BRAND}33 inset` : "none",
+                ["--beige"]: BG,
+              }}
+            >
+              <span className="inline-block truncate max-w-full">{it.title}</span>
+            </button>
+          </li>
+        );
+      })}
+    </ul>
+  </nav>
+);
+
 export default function ServiceSection() {
   const { t, i18n } = useTranslation();
-  const isRTL = i18n.dir() === "rtl";
   const navigate = useNavigate();
   const { country, sectionId } = useParams();
 
-  // Keep document language/dir for accessibility
+  // Direction helpers
+  const dir = i18n.dir(); // "rtl" | "ltr"
+  const align = dir === "rtl" ? "text-right" : "text-left";
+  const padStart = dir === "rtl" ? "pr-5" : "pl-5";
+
   useEffect(() => {
     document.documentElement.lang = i18n.language || "en";
-    document.documentElement.dir = i18n.dir();
-  }, [i18n.language, i18n]);
+    document.documentElement.dir = dir;
+  }, [i18n.language, dir]);
 
-  // Go to top on change
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [country, sectionId]);
 
-  // Pull raw i18n blocks
   const SRaw = O(t("services.saudi",   { returnObjects: true, defaultValue: {} }));
   const BRaw = O(t("services.bahrain", { returnObjects: true, defaultValue: {} }));
   const URaw = O(t("services.uae",     { returnObjects: true, defaultValue: {} }));
 
-  // Pick the ONE selected panel + country heading
   const { panel, title } = useMemo(() => {
     let panels = [];
     let idx = -1;
@@ -166,23 +135,30 @@ export default function ServiceSection() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [country, sectionId, i18n.language]);
 
-  // Sidebar titles
   const others = useMemo(() => {
     if (country === "saudi") {
-      return SAUDI_SECTIONS.map(({ id, pick, fallback }) => ({
-        id,
-        title: pick(SRaw) || fallback,
-      }));
+      const ids = ["foreign","with-partner","premium","local-gcc","company-types","licenses"];
+      return ids.map((id) => {
+        const node =
+          id === "foreign"       ? O(SRaw.foreign)
+        : id === "with-partner"  ? O(SRaw.withPartner)
+        : id === "premium"       ? O(SRaw.premium)
+        : id === "local-gcc"     ? O(SRaw.localGCC)
+        : id === "company-types" ? O(SRaw.companyTypes)
+        : id === "licenses"      ? O(SRaw.licenses)
+        : {};
+        return { id, title: node?.title || node?.heading || "" };
+      });
     }
-    const items = country === "bahrain" ? A(BRaw.items) : A(URaw.items);
+    const items = country === "bahrain" ? asArray(BRaw.items) : asArray(URaw.items);
+    function asArray(v){return Array.isArray(v)?v:[]}
     return items.map((it, idx) => ({ id: `sec-${idx}`, title: it?.title || it?.name || "" }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [country, sectionId, i18n.language]);
 
-  // Fallback if invalid id
   if (!panel) {
     return (
-      <section dir="ltr" className="min-h-screen" style={{ background: BG }}>
+      <section dir={dir} className="min-h-screen" style={{ background: BG }}>
         <div className="max-w-6xl mx-auto px-6 py-20">
           <PageHeading title={t("services.heading", { defaultValue: "Our Services" })} />
           <div className="mt-8 rounded-lg bg-white p-6 shadow-sm" style={{ border: `1px solid ${BORDER}` }}>
@@ -190,10 +166,18 @@ export default function ServiceSection() {
               {t("services.notFound", { defaultValue: "Sorry, that section was not found." })}
             </p>
             <div className="mt-6 flex gap-3">
-              <button onClick={() => navigate(-1)} className="px-4 py-2 rounded-md hover:bg-gray-50" style={{ border: `1px solid ${BORDER}` }}>
+              <button
+                onClick={() => navigate(-1)}
+                className="px-4 py-2 rounded-md hover:bg-gray-50"
+                style={{ border: `1px solid ${BORDER}` }}
+              >
                 {t("common.back", { defaultValue: "Back" })}
               </button>
-              <Link to={`/services/${country}`} className="px-4 py-2 rounded-md hover:bg-gray-50" style={{ border: `1px solid ${BORDER}` }}>
+              <Link
+                to={`/services/${country}`}
+                className="px-4 py-2 rounded-md hover:bg-gray-50"
+                style={{ border: `1px solid ${BORDER}` }}
+              >
                 {t("services.viewServices", { defaultValue: "View All Services" })}
               </Link>
             </div>
@@ -203,110 +187,134 @@ export default function ServiceSection() {
     );
   }
 
-  const arrow = isRTL ? "→" : "←";
+  const arrow = dir === "rtl" ? "←" : "←";
 
   return (
-    /* 🔒 Lock layout LTR so the sidebar stays on the RIGHT by default; we control swap with order utilities */
-    <section dir="ltr" className="min-h-screen" style={{ background: BG }}>
+    <section dir={dir} className="min-h-screen" style={{ background: BG }}>
       <div className="max-w-6xl mx-auto px-6 pt-24 pb-16">
-
-        {/* Header row — reverse visual order when RTL */}
-        <div className={`flex items-center justify-between gap-4 ${isRTL ? "flex-row-reverse" : ""}`}>
-          <PageHeading title={title} titleDir={i18n.dir()} align="start" />
+        <div className="flex items-center justify-between gap-4">
+          <PageHeading title={title} titleDir={dir} />
           <Link
             to={`/services/${country}`}
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-white hover:bg-gray-50"
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-white hover:bg-gray-50 "
             style={{ border: `1px solid ${BORDER}` }}
           >
             <span>{arrow}</span>
+            {/* <span className="font-medium">
+              {t("services.backToCountry", { defaultValue: "Back to Services" })}
+            </span> */}
             <span className="font-medium">
-              {t("services.backToCountry", {
-                defaultValue: isRTL ? "عودة إلى الخدمات" : "Back to Services",
-              })}
-            </span>
+  {i18n.language.startsWith("ar") ? "عودة إلى الخدمات" : "Back to Services"}
+</span>
+
           </Link>
         </div>
 
-        {/* Two columns: MAIN + SIDEBAR; swap positions on RTL */}
         <div className="mt-10 grid grid-cols-1 lg:grid-cols-12 gap-8">
-
-          {/* MAIN — becomes left in LTR (order-1) and left in visual flow for RTL by setting order-2 */}
-          <article className={`lg:col-span-8 p-1 ${isRTL ? "lg:order-2" : "lg:order-1"}`}>
-            <div dir={i18n.dir()} className="rounded-lg p-6 md:p-8 leading-relaxed text-start">
-              <h2 dir={i18n.dir()} className="text-2xl font-bold mb-5 text-start" style={{ color: INK }}>
+          {/* MAIN */}
+          <article className="lg:col-span-8 p-1">
+            <div className="rounded-lg p-6 md:p-8 leading-relaxed">
+              <h2 className={`text-2xl font-bold mb-5 ${align}`} style={{ color: INK }} dir={dir}>
                 {panel.title}
               </h2>
 
-              {/* Render variants */}
+              {/* Variants */}
               {"type" in panel && panel.type === "companyTypes" ? (
                 <div className="grid sm:grid-cols-2 gap-4">
                   {A(panel.items).map((it, i) => (
-                    <div key={i} className="rounded-md p-4" style={{ background: BG, border: `1px solid ${BORDER}` }}>
-                      <div className="font-semibold mb-1" dir={i18n.dir()}>{it.name}</div>
+                    <div
+                      key={i}
+                      className="rounded-md p-4"
+                      style={{ background: BG, border: `1px solid ${BORDER}` }}
+                    >
+                      <div className={`font-semibold mb-1 ${align}`} dir={dir}>{it.name}</div>
                       {it.desc ? (
-                        <div dir={i18n.dir()} className="text-start">
-                          <RichText text={it.desc} className="text-gray-800 text-[15px]" />
-                        </div>
+                        <RichText text={it.desc} className={`text-gray-800 text-[15px] ${align}`} dir={dir} />
                       ) : null}
                     </div>
                   ))}
                 </div>
               ) : "type" in panel && panel.type === "licenses" ? (
-                <div className="space-y-6">
-                  {A(panel.groups).map((g, gi) => (
-                    <section key={gi}>
-                      <h3 className="font-semibold mb-2 text-start" dir={i18n.dir()}>{g.name}</h3>
-                      {A(g.items).length ? (
-                        <ul dir={i18n.dir()} className="list-disc ps-6 space-y-1">
-                          {g.items.map((li, lii) => (
-                            <li key={lii} className="text-gray-800">
-                              {li}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p className="text-gray-500 text-sm">—</p>
-                      )}
-                    </section>
-                  ))}
+                <div className="space-y-4">
+                  <ul className={`list-disc ${padStart} space-y-3 ${align}`} dir={dir}>
+                    {A(panel.groups).map((g, gi) => (
+                      <li key={gi} className={`text-gray-900 ${align}`}>
+                        <span className="font-semibold">{g.name}</span>
+                        {A(g.items).length > 0 && (
+                          <ul className={`list-disc ${padStart} mt-1 space-y-1 ${align}`} dir={dir}>
+                            {g.items.map((li, lii) => (
+                              <li key={lii} className={`text-gray-800 ${align}`}>
+                                <RichText text={li} className={`text-gray-800 ${align}`} dir={dir} />
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* CTA at the very end for licenses */}
+                  {panel.contactCta && (
+                    <div className="mt-4">
+                      <RichText text="<contact>Contact us</contact>" dir={dir} />
+                    </div>
+                  )}
                 </div>
               ) : "isHtml" in panel && panel.isHtml ? (
+                // HTML blocks already include the CTA inside their content
                 <div
-                  dir={i18n.dir()}
-                  className="prose max-w-none prose-li:my-1 prose-h5:mt-4 prose-h5:mb-2
-                             prose-ul:list-disc prose-ul:ps-6 prose-ol:list-decimal prose-ol:ps-6 text-start"
+                  dir={dir}
+                  className={`prose max-w-none prose-li:my-1 prose-h5:mt-4 prose-h5:mb-2 ${align}`}
                   style={{ color: INK }}
                   dangerouslySetInnerHTML={{ __html: panel.content }}
                 />
               ) : (
                 <>
                   {panel.content ? (
-                    <div dir={i18n.dir()} className="text-start">
-                      <RichText text={panel.content} className="text-[17px]" />
-                    </div>
+                    <RichText text={panel.content} className={`text-[17px] ${align}`} dir={dir} />
                   ) : null}
+
                   {A(panel.bullets).length ? (
-                    <ul dir={i18n.dir()} className="mt-4 list-disc ps-6 space-y-1">
-                      {panel.bullets.map((b, bi) => (
-                        <li key={bi} className="text-gray-800">
-                          {b}
-                        </li>
-                      ))}
-                    </ul>
+                    <>
+                      <ul className={`mt-4 list-disc ${padStart} space-y-1 ${align}`} dir={dir}>
+                        {panel.bullets.map((b, bi) => (
+                          <li key={bi} className="text-gray-800">
+                            <RichText text={b} className={`text-gray-800 ${align}`} dir={dir} />
+                          </li>
+                        ))}
+                      </ul>
+
+                      {/* CTA after bullets for simple panels */}
+                      {panel.contactCta && (
+                        <div className="mt-4">
+                          <RichText text="<contact>Contact us</contact>" dir={dir} />
+                        </div>
+                      )}
+                    </>
                   ) : null}
                 </>
               )}
             </div>
+
+            {/* CTA row: Contact + More info */}
+            <div className="mt-6 flex flex-wrap justify-center gap-3" dir={dir}>
+              <CtaButton
+                label={t("services.contactCta", { defaultValue: "Contact us" })}
+                to="/contact"
+                variant="primary"
+              />
+             
+            </div>
           </article>
 
-          {/* SIDEBAR — stays visually on the right in LTR; moves to the right in RTL by ordering first */}
-          <aside className={`lg:col-span-4 lg:sticky lg:top-24 h-fit ${isRTL ? "lg:order-1" : "lg:order-2"}`}>
+          {/* SIDEBAR */}
+          <aside className="lg:col-span-4 lg:sticky lg:top-24 h-fit">
             <RightTitleList
               items={others}
               activeId={sectionId}
+              dir={dir}
               onSelect={(id) => navigate(`/services/${country}/section/${id}`)}
             />
-            {/* Hint/assistive text could be added here if needed */}
           </aside>
         </div>
       </div>

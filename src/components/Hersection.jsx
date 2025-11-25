@@ -59,13 +59,18 @@ export default function Hersection() {
      
     >
       {/* === Background video === */}
-      <video
+      {/* <video
         className="absolute inset-0 w-full h-full object-cover"
         autoPlay
         loop
         muted
         playsInline
         src="/assets/hero-org.mp4"
+      /> */}
+      <img
+        className="absolute inset-0 w-full h-full "
+        src="/assets/hero-org.png"
+        alt="Hero background"
       />
 
       {/* Readability gradient (top/bottom dark) */}
@@ -104,7 +109,7 @@ export default function Hersection() {
          
         >
           {/* Badge */}
-          {badge && (
+          {/* {badge && (
             <div >
               <span
                 className="inline-block px-4 py-2  rounded-full backdrop-blur-md text-xs sm:text-sm  text-center max-w-[92vw] whitespace-normal break-words"
@@ -117,7 +122,7 @@ export default function Hersection() {
                 {badge}
               </span>
             </div>
-          )}
+          )} */}
 
           {/* Title (multi-line) */}
           <h1

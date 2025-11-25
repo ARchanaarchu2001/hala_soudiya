@@ -22,23 +22,23 @@ function buildCountryCards(t) {
     {
       key: "saudi",
       label: t("services.country.saudi", { defaultValue: "Saudi Arabia" }),
-      bgSrc: "/assets/saudi-arabia.jpeg",
+      bgSrc: "/assets/saudi-arabia.png",
       flagSrc: "/icons/saudi.png",
-      overlay: "#0c6b64",
+      
     },
     {
       key: "bahrain",
       label: t("services.country.bahrain", { defaultValue: "Bahrain" }),
-      bgSrc: "/assets/bahrain.jpg",
+      bgSrc: "/assets/bahrain.png",
       flagSrc: "/icons/bahran.png",
-      overlay: "#75516b",
+      
     },
     {
       key: "uae",
       label: t("services.country.uae", { defaultValue: "United Arab Emirates" }),
-      bgSrc: "/assets/uae1.jpg",
+      bgSrc: "/assets/uae1.png",
       flagSrc: "/icons/uae3.png",
-      overlay: "#0e3a5a",
+      
     },
   ];
 }

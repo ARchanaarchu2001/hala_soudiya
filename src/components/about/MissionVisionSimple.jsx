@@ -7,53 +7,83 @@ const GOLD  = "#d4af37";
 // beveled lower-right corner (optional)
 const CLIP = "polygon(0% 0%, 100% 0%, 100% 82%, 85% 100%, 0% 100%, 0% 0%)";
 
-function HoverCard({ img, title, text, color, alt, textDir }) {
+function HoverCard({ img, title, text, color, alt, textDir, stackMobile }) {
   return (
     <article
-      className="group relative rounded-2xl overflow-hidden shadow-lg ring-1 ring-black/5"
+      className="group relative rounded-2xl overflow-hidden shadow-lg ring-1 ring-black/5 bg-white"
       style={{ borderRadius: 16 }}
     >
-      {/* Image only by default */}
-      <img
-        src={img}
-        alt={alt || title}
-        className="w-full h-[260px] sm:h-[320px] object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-        style={{ clipPath: CLIP, WebkitClipPath: CLIP }}
-      />
+      {/* IMAGE + DESKTOP OVERLAY */}
+      <div className="relative">
+        <img
+          src={img}
+          alt={alt || title}
+          className="w-full h-[260px] sm:h-[320px] object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+          style={{ clipPath: CLIP, WebkitClipPath: CLIP }}
+        />
 
-      {/* Darken layer on hover */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-400 ease-out"
-        style={{
-          background:
-            "linear-gradient(to top, rgba(0,0,0,.7) 0%, rgba(0,0,0,.35) 45%, rgba(0,0,0,0) 100%)",
-        }}
-      />
-
-      {/* Text (appears only on hover/focus) */}
-      <div className="absolute inset-0 p-5 sm:p-6 flex items-end" dir={textDir}>
+        {/* Dark gradient + text overlay ONLY on md+ when stackMobile is true,
+            otherwise behave like before */}
         <div
-          className="
-            w-full
-            translate-y-4 opacity-0
-            group-hover:translate-y-0 group-hover:opacity-100
-            group-focus-within:translate-y-0 group-focus-within:opacity-100
-            transition-all duration-400 ease-out
-          "
+          className={`
+            pointer-events-none absolute inset-0
+            ${stackMobile ? "hidden md:block" : "opacity-100 md:opacity-0 md:group-hover:opacity-100"}
+            transition-opacity duration-400 ease-out
+          `}
+          style={{
+            background:
+              "linear-gradient(to top, rgba(0,0,0,.7) 0%, rgba(0,0,0,.35) 45%, rgba(0,0,0,0) 100%)",
+          }}
+        />
+
+        <div
+          className={`
+            absolute inset-0 p-6 flex items-end
+            ${stackMobile ? "hidden md:flex" : "flex"}
+          `}
+          dir={textDir}
         >
-          <h3 className="text-2xl sm:text-3xl font-bold mb-2 text-white">
+          <div
+            className="
+              w-full sm:max-w-3xl
+              translate-y-0 opacity-100
+              md:translate-y-4 md:opacity-0
+              md:group-hover:translate-y-0 md:group-hover:opacity-100
+              md:group-focus-within:translate-y-0 md:group-focus-within:opacity-100
+              transition-all duration-400 ease-out
+            "
+          >
+            <h3 className="text-2xl sm:text-3xl font-bold mb-2 text-white">
+              {title}
+            </h3>
+            <div
+              className="h-1 w-16 rounded-full mb-3"
+              style={{ backgroundColor: color }}
+            />
+            <p className="text-white/90 leading-relaxed text-sm">{text}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* MOBILE TEXT BELOW IMAGE (only when stackMobile is true) */}
+      {stackMobile && (
+        <div className="block md:hidden px-4 py-4">
+          <h3 className="text-lg font-semibold mb-2 text-gray-900">
             {title}
           </h3>
           <div
-            className="h-1 w-16 rounded-full mb-3"
+            className="h-1 w-14 rounded-full mb-3"
             style={{ backgroundColor: color }}
           />
-          <p className="text-white/90 leading-relaxed">{text}</p>
+          <p className="text-[13px] leading-relaxed text-gray-700">
+            {text}
+          </p>
         </div>
-      </div>
+      )}
     </article>
   );
 }
+
 
 export default function MissionVisionSimple() {
   const { t, i18n } = useTranslation();
@@ -67,15 +97,24 @@ export default function MissionVisionSimple() {
   const missionWord = t("about.missionHeading", {
     defaultValue: isRTL ? "الرسالة" : "Mission",
   });
+
+  const missionWord1 = t("about.missionHeading1", {
+    defaultValue: isRTL ? "لماذا هلا السعودية؟" : "Why Us",
+  });
   const visionWord = t("about.visionHeading", {
     defaultValue: isRTL ? "الرؤية" : "Vision",
   });
   const sectionHeading = t("about.mvHeading", {
-    defaultValue: `${missionWord} & ${visionWord}`,
+    defaultValue: `${missionWord} ,${visionWord} & ${missionWord1}`,
   });
 
   // Card hover texts (visible on hover only)
   const missionText = t("about.missionText", {
+    defaultValue:
+      "We deliver fast, reliable legal & documentation services that help businesses set up and grow with confidence across the GCC.",
+  });
+
+  const missionText1 = t("about.missionText2", {
     defaultValue:
       "We deliver fast, reliable legal & documentation services that help businesses set up and grow with confidence across the GCC.",
   });
@@ -106,7 +145,7 @@ export default function MissionVisionSimple() {
         </div>
 
         {/* CARDS */}
-        <div className="grid gap-8 lg:grid-cols-2 justify-items-center">
+        <div className="grid gap-8 lg:grid-cols-3 justify-items-center ">
           <HoverCard
             img="/assets/mission1.jpg"
             alt={missionWord}
@@ -114,7 +153,9 @@ export default function MissionVisionSimple() {
             text={missionText}
             color={GOLD}
             textDir={dir}
+          
           />
+          
           <HoverCard
             img="/assets/vision1.jpg"
             alt={visionWord}
@@ -123,6 +164,16 @@ export default function MissionVisionSimple() {
             color={GOLD}
             textDir={dir}
           />
+          <HoverCard
+            img="/assets/mission2.jpg"
+            alt={missionWord}
+           title={missionWord1}
+            text={missionText1}
+            color={GOLD}
+            textDir={dir}
+            stackMobile
+          />
+          
         </div>
       </div>
     </section>

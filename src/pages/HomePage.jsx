@@ -25,8 +25,9 @@ export default function HomePage() {
       <section id="home"><HeroSection /></section>
       <section id="services"><ServicesPage /></section>
       <section id="about"><AboutSection /></section>
+     
       
-      <section id="contact"><ContactPage /></section>
+      {/* <section id="contact"><ContactPage /></section> */}
       
     </>
   );

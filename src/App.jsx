@@ -14,6 +14,7 @@ import ServiceCountry from "./pages/ServiceCountry";
 import ServiceCountryStandard from "./pages/ServiceCountryStandard";
 import ServiceCountryShowcase from "./pages/ServiceCountryShowcase";
 import ServiceSection from "./components/services/ServiceSection";
+import ContactPage from "./pages/ContactPage";
 
 /** Manage scroll + hash on first load and on route changes */
 function ScrollManager() {
@@ -80,6 +81,7 @@ export default function App() {
         <Route path="/services" element={<ServicesPage />} />
         <Route path="/services/:country" element={<ServicesPage />} />
         <Route path="/services/:country/section/:sectionId" element={<ServiceSection />} />
+        <Route path="/contact" element={<ContactPage/>} />
         {/* Optional 404
         <Route path="*" element={<div style={{ padding: 40 }}>Not found</div>} /> */}
       </Routes>

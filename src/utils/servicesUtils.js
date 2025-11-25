@@ -6,101 +6,77 @@ export const isNonEmpty = (s) => typeof s === "string" && s.trim().length > 0;
 export const toText = (v) =>
   typeof v === "string" ? v : v?.title ?? v?.name ?? (v ?? "");
 
-// Force bullet lists with logical padding (works LTR & RTL)
-const ul = (arr) => {
-  const items = asArray(arr);
-  if (!items.length) return "";
-  return `<ul class="list-disc ps-6 space-y-1">${items
-    .map((x) => `<li>${toText(x)}</li>`)
-    .join("")}</ul>`;
-};
-
 /**
  * Build Saudi panels with stable ids for deep links.
- * - "foreign" and "with-partner" show both points + requirements as bullet lists.
- * - Some panels return isHtml so the page drops in the HTML content.
- * - Others return structured "type" with data the page renders itself.
+ * No auto-append. We keep the strings exactly as in i18n JSON.
+ * The page will render these with <RichText> so <contact> tags work.
  */
 export const buildSaudiPanels = (S) => {
   const out = [];
 
   // 1) Foreign
   const F = ensureObject(S.foreign);
-  if (F.title) {
-    const intro    = isNonEmpty(F.intro) ? `<p>${toText(F.intro)}</p>` : "";
-    const pointsUL = ul(F.points);
-    const reqTitle = isNonEmpty(F.reqTitle) ? `<h5>${toText(F.reqTitle)}</h5>` : "";
-    const reqsUL   = ul(F.requirements);
+  if (isNonEmpty(F?.title)) {
     out.push({
       id: "foreign",
       title: toText(F.title),
-      isHtml: true,
-      content: `${intro}${pointsUL}${reqTitle}${reqsUL}`,
+      isHtml: false,
+      content: toText(F.intro || ""),
+      bullets: asArray(F.points).map(toText)
+        .concat(isNonEmpty(F.reqTitle) ? [toText(F.reqTitle)] : [])
+        .concat(asArray(F.requirements).map(toText)),
+      // no contactCta unless you explicitly want an extra CTA at the end
     });
   }
 
   // 2) With partner
   const WP = ensureObject(S.withPartner);
-  if (WP.title) {
-    const intro    = isNonEmpty(WP.intro) ? `<p>${toText(WP.intro)}</p>` : "";
-    const pointsUL = ul(WP.points);
-    const reqTitle = isNonEmpty(WP.reqTitle) ? `<h5>${toText(WP.reqTitle)}</h5>` : "";
-    const reqsUL   = ul(WP.requirements);
+  if (isNonEmpty(WP?.title)) {
     out.push({
       id: "with-partner",
       title: toText(WP.title),
-      isHtml: true,
-      content: `${intro}${pointsUL}${reqTitle}${reqsUL}`,
+      isHtml: false,
+      content: toText(WP.intro || ""),
+      bullets: []
+        .concat(asArray(WP.points).map(toText))
+        .concat(isNonEmpty(WP.reqTitle) ? [toText(WP.reqTitle)] : [])
+        .concat(asArray(WP.requirements).map(toText)),
     });
   }
 
-  // 3) Premium
-  // 3) Premium  ✅ now supports a separate "conditions" field (string or array)
-const PR = ensureObject(S.premium);
-if (PR.title) {
-  const textHTML =
-    isNonEmpty(PR.text) ? `<p>${toText(PR.text)}</p>` : "";
-
-  // If you ever add a dedicated title (e.g., "الشروط" / "Conditions"), you can
-  // put it in premium.conditionsTitle. Otherwise we'll just print the conditions.
-  const condTitle = isNonEmpty(PR.conditionsTitle) ? toText(PR.conditionsTitle) : "";
-
-  // Conditions can be a string ("Conditions: ...") OR an array of bullets.
-  const condListHTML = Array.isArray(PR.conditions) ? (
-    // render as bullet list when array
-    `<ul class="list-disc ps-6 space-y-1">${asArray(PR.conditions).map(c => `<li>${toText(c)}</li>`).join("")}</ul>`
-  ) : (
-    // otherwise render the single string (keeps your Arabic "الشروط: ..." intact)
-    isNonEmpty(PR.conditions) ? `<p><strong>${toText(PR.conditions)}</strong></p>` : ""
-  );
-
-  const conditionsHTML = condListHTML
-    ? (condTitle ? `<h5>${condTitle}</h5>${condListHTML}` : condListHTML)
-    : "";
-
-  out.push({
-    id: "premium",
-    title: toText(PR.title),
-    isHtml: true,                 // ⬅ switched to HTML so we can show both parts
-    content: `${textHTML}${conditionsHTML}`,
-  });
-}
-
+  // 3) Premium (conditions can be string or array)
+  const PR = ensureObject(S.premium);
+  if (isNonEmpty(PR?.title)) {
+    const text = toText(PR.text || "");
+    const conditions = Array.isArray(PR.conditions)
+      ? PR.conditions.map(toText)
+      : isNonEmpty(PR.conditions)
+        ? [toText(PR.conditions)]
+        : [];
+    out.push({
+      id: "premium",
+      title: toText(PR.title),
+      isHtml: false,
+      content: text,
+      bullets: conditions,
+    });
+  }
 
   // 4) Local/GCC (bullets)
   const LG = ensureObject(S.localGCC);
-  if (LG.title) {
+  if (isNonEmpty(LG?.title)) {
     out.push({
       id: "local-gcc",
       title: toText(LG.title),
-      isHtml: true,
-      content: ul(LG.items),
+      isHtml: false,
+      content: "",
+      bullets: asArray(LG.items).map(toText),
     });
   }
 
-  // 5) Company types (structured)
+  // 5) Company types (structured; desc is rendered with <RichText> in the page)
   const CT = ensureObject(S.companyTypes);
-  if (CT.heading) {
+  if (isNonEmpty(CT?.heading)) {
     out.push({
       id: "company-types",
       title: toText(CT.heading),
@@ -112,9 +88,9 @@ if (PR.title) {
     });
   }
 
-  // 6) Licenses (structured)
+  // 6) Licenses (structured; items rendered via <RichText> in the page)
   const LIC = ensureObject(S.licenses);
-  if (LIC.heading) {
+  if (isNonEmpty(LIC?.heading)) {
     out.push({
       id: "licenses",
       title: toText(LIC.heading),
@@ -131,6 +107,7 @@ if (PR.title) {
 
 /**
  * Build simple panels (Bahrain/UAE) and carry bullets through.
+ * No auto-append; strings are passed as-is so <contact> works only where present.
  */
 export const buildSimplePanels = (obj) =>
   asArray(obj.items).map((it, i) => ({
@@ -138,7 +115,7 @@ export const buildSimplePanels = (obj) =>
     title: toText(it?.title ?? it),
     isHtml: false,
     content: toText(it?.desc ?? ""),
-    bullets: asArray(it?.bullets).map((b) => toText(b)),
+    bullets: asArray(it?.bullets).map(toText),
   }));
 
 /** Optional helper if you need country tiles elsewhere */

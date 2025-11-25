@@ -33,10 +33,10 @@ const RichText = ({ text = "", className = "" }) => {
     // Otherwise navigate to home with hash, then scroll after it mounts
     e.preventDefault();
     if (location.pathname !== "/") {
-      navigate("/#contact"); // SPA navigation
+      navigate("/contact"); // SPA navigation
     } else {
       // already on / but the element isn't mounted yet (rare), set hash anyway
-      navigate("#contact");
+      navigate("/contact");
     }
 
     // Poll briefly until the section is in the DOM, then smooth-scroll
@@ -76,7 +76,7 @@ const RichText = ({ text = "", className = "" }) => {
       nodes.push(
         <a
           key={`c-${key++}`}
-          href="/#contact"              // graceful fallback if JS/router not available
+          href="/contact"              // graceful fallback if JS/router not available
           onClick={goToContact}         // smart scroll-or-navigate
           className="text-[#000000] underline hover:no-underline font-semibold"
         >

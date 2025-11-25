@@ -9,6 +9,7 @@ import StatsRow from "../components/about/StatsRow";
 import RichText from "../components/common/RichTextLink";
 import { TEXT } from "../components/about/Theme";
 
+
 const GREEN = "#000000";
 
 /* ---- Motion variants ---- */
@@ -74,7 +75,14 @@ const AboutSection = () => {
       style={{ scrollMarginTop: "var(--nav-safe, 8rem)", ["--text"]: TEXT }}
     >
   {/* ===== Expertise list (your component already supports animation if added) ===== */}
-      <ExpertiseList items={expertiseItems} />
+      <ExpertiseList items={expertiseItems} firstCardLogos={[
+  { "src": "/assets/logo0.webp", "alt": "Partner 1" },
+  { "src": "/assets/logo1.png", "alt": "Partner 2" },
+  { "src": "/assets/logo2.jpg", "alt": "Partner 3" },
+  { "src": "/assets/logo3.png", "alt": "Partner 4" },
+  { "src": "/assets/logo4.png", "alt": "Partner 5" },
+  { "src": "/assets/logo5.png", "alt": "Partner 6" }
+]}/>
 
        {/* ===== Mission & Vision (image cards with hover reveal) ===== */}
       <MissionVisionSimple />
@@ -93,14 +101,14 @@ const AboutSection = () => {
         >
           {/* Left Copy (text direction & alignment follow language) */}
           <div dir={dir} className={isRTL ? "text-right" : "text-left"}>
-            <motion.div variants={fadeUp}>
+            {/* <motion.div variants={fadeUp}>
               <div
                 className={`inline-flex px-4 py-2 rounded-full border mb-5 ${isRTL ? "ml-auto" : "mr-auto"}`}
                 style={{ borderColor: "rgba(1,108,55,.25)", color: GREEN, backgroundColor: "rgba(1,108,55,.06)" }}
               >
                 <span className="text-xs sm:text-sm font-medium">{badge}</span>
               </div>
-            </motion.div>
+            </motion.div> */}
 
             {/* Animate the headings as one block to keep SplitHeading intact */}
             <motion.div variants={fadeUp}>
